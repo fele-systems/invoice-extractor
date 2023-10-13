@@ -1,4 +1,4 @@
-package com.systems.fele;
+package com.systems.fele.extractor.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,9 +11,9 @@ public class Expense {
     private BigDecimal amount;
     private String description;
     private LocalDate date;
-    private int installment;
+    private Installment installment;
     
-    public Expense(BigDecimal amount, String description, LocalDate date, int installment) {
+    public Expense(BigDecimal amount, String description, LocalDate date, Installment installment) {
         this.amount = amount;
         this.description = description;
         this.date = date;
@@ -48,7 +48,7 @@ public class Expense {
      * Getter for installment.
      * @return installment number or 0 if none
      */
-    public int getInstallment() {
+    public Installment getInstallment() {
         return installment;
     }
 

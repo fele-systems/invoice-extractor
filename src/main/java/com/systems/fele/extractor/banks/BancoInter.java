@@ -1,4 +1,4 @@
-package com.systems.fele;
+package com.systems.fele.extractor.banks;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -10,23 +10,29 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class BancoInter extends PdfExtractor {
+import com.systems.fele.common.util.StringUtils;
+import com.systems.fele.extractor.exception.InvoiceFormatException;
+import com.systems.fele.extractor.model.Expense;
+import com.systems.fele.extractor.model.Installment;
+import com.systems.fele.extractor.model.Invoice;
+
+public class BancoInter implements Extractor {
 
     private LocalDate parseExpenseDate(String expenseAsStr) {
         var day = Integer.parseInt(expenseAsStr.substring(0, 2));
 
         Month month = switch(expenseAsStr.substring(3, 6)) {
-            case "jan" -> month = Month.JANUARY;
-            case "fev" -> month = Month.FEBRUARY;
-            case "mar" -> month = Month.MARCH;
-            case "mai" -> month = Month.MAY;
-            case "jun" -> month = Month.JUNE;
-            case "jul" -> month = Month.JULY;
-            case "ago" -> month = Month.AUGUST;
-            case "set" -> month = Month.SEPTEMBER;
-            case "out" -> month = Month.OCTOBER;
-            case "nov" -> month = Month.NOVEMBER;
-            case "dec" -> month = Month.DECEMBER;
+            case "jan" -> Month.JANUARY;
+            case "fev" -> Month.FEBRUARY;
+            case "mar" -> Month.MARCH;
+            case "mai" -> Month.MAY;
+            case "jun" -> Month.JUNE;
+            case "jul" -> Month.JULY;
+            case "ago" -> Month.AUGUST;
+            case "set" -> Month.SEPTEMBER;
+            case "out" -> Month.OCTOBER;
+            case "nov" -> Month.NOVEMBER;
+            case "dec" -> Month.DECEMBER;
             default -> throw new InvoiceFormatException("Invalid expense date for: " + expenseAsStr);
         };
 
@@ -50,15 +56,31 @@ public class BancoInter extends PdfExtractor {
         
         var description = expenseAsStr.substring(12, amountIndex - 1);
         
-        var installmentIndex = description.indexOf(0);
-        int installment = 0;
-        if (installmentIndex > 0) {
-            int discardPrefix = installmentIndex + 1 + "Parcela ".length();
-            int discardSufix = description.indexOf(" ", discardPrefix);
-            installment = Integer.parseInt(description.substring(discardPrefix, discardSufix));
-            description = description.substring(0, installmentIndex);
-        }         
-        System.out.println("Decimal sep: " + new DecimalFormatSymbols(Locale.forLanguageTag("pt-BR")).getDecimalSeparator());
+        var installmentSectionIndex = StringUtils.indexOf(description, '\0');
+        
+        Installment installment = null;
+        if (!installmentSectionIndex.isEOF()) {
+            System.out.println(installmentSectionIndex.skip(1).skip("Parcela ".length()).slice());
+            // Skip the next "Parcela " characters
+            int instNo = Integer.parseInt(installmentSectionIndex.skip(1).skip("Parcela ".length())
+                    .slice()
+                    .take(2)
+                    //.takeWhile(Character::isDigit)
+                    .toString());
+
+            int instTotal = Integer.parseInt(StringUtils.rEnd(description)
+                    .skipTo(' ')
+                    .rev()
+                    .skip(1)
+                    .slice()
+                    .takeWhile(Character::isDigit)
+                    .toString());
+                
+
+            description = description.substring(0, installmentSectionIndex.getIndex()-2);
+            installment = new Installment(instNo, instTotal);
+        }
+        
         var numberFormat = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.forLanguageTag("pt-BR")));
         numberFormat.setParseBigDecimal(true);
         try {
@@ -69,7 +91,7 @@ public class BancoInter extends PdfExtractor {
     }
 
     @Override
-    protected Invoice extract(LineStream stream) {
+    public Invoice extract(LineStream stream) {
         if (!stream.find("VENCIMENTO")) {
             throw new InvoiceFormatException("Could not find due date");
         }
@@ -94,11 +116,18 @@ public class BancoInter extends PdfExtractor {
                 try {
                     invoice.getExpenses().add(parseExpense(asStr));
                 } catch (Exception e) {
-                    throw new InvoiceFormatException("Parsing: " + asStr);
+                    throw new InvoiceFormatException("Parsing: " + StringUtils.escape(asStr), e);
                 }
                 
             }
         }
         return invoice;
+    }
+
+    @Override
+    public boolean isExtractable(LineStream stream) {
+        
+        return stream.getLine().startsWith("Oi, ");
+        
     }
 }

@@ -1,4 +1,4 @@
-package com.systems.fele;
+package com.systems.fele.extractor.model;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;

@@ -1,4 +1,4 @@
-package com.systems.fele;
+package com.systems.fele.extractor.exception;
 
 public class InvoiceFormatException extends RuntimeException {
     public InvoiceFormatException(String message) {
