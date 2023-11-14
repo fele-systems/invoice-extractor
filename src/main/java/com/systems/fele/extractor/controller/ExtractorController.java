@@ -16,6 +16,7 @@ import com.systems.fele.extractor.model.Invoice;
 import com.systems.fele.extractor.service.ExtractorService;
 
 @RestController
+
 public class ExtractorController {
 
     private final ExtractorService extractorService;
@@ -25,7 +26,7 @@ public class ExtractorController {
         this.extractorService = extractorService;
     }
 
-    @PostMapping(value = "/extract",
+    @PostMapping(value = "rest/api/extract",
         consumes = { MediaType.MULTIPART_FORM_DATA_VALUE },
         produces = { MediaType.APPLICATION_JSON_VALUE })
     public Invoice extract(@RequestPart("document") MultipartFile file, @Nullable @RequestPart("password") String password, @Nullable @RequestPart("hint") String hint) throws IOException {

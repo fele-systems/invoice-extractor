@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.systems.fele.extractor.banks.BancoInter;
 import com.systems.fele.extractor.banks.Extractor;
 import com.systems.fele.extractor.banks.InvoiceResource;
+import com.systems.fele.extractor.banks.NuBank;
 import com.systems.fele.extractor.exception.InvoiceFormatException;
 import com.systems.fele.extractor.model.Invoice;
 

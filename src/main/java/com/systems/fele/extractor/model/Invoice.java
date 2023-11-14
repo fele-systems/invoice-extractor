@@ -7,16 +7,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
+import lombok.Getter;
+
+@Getter
 public class Invoice {
     LocalDate dueDate;
     List<Expense> expenses;
-    
-    public LocalDate getDueDate() {
-        return dueDate;
-    }
-    public List<Expense> getExpenses() {
-        return expenses;
-    }
 
     public Invoice(LocalDate dueDate, List<Expense> expenses) {
         this.dueDate = dueDate;

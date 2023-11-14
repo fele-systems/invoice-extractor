@@ -1,5 +1,6 @@
 package com.systems.fele.common.util;
 
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
@@ -10,17 +11,22 @@ public class StringUtils {
         var sb = new StringBuilder();
         for (int i = 0; i < unescaped.length(); i++) {
             switch (unescaped.charAt(i)) {
-                case '\0':
+            case '\0':
                 sb.append("\\0");
                 break;
-                case '\t':
+            case '\t':
                 sb.append("\\t");
                 break;
-                case '\n':
+            case '\n':
                 sb.append("\\n");
                 break;
-                default:
-                sb.append(unescaped.charAt(i));
+            default:
+                if (Character.isISOControl(unescaped.charAt(i))) {
+                    var asInt = Character.getNumericValue(unescaped.charAt(i));
+                    sb.append( "\\x" + Integer.toHexString(asInt) );
+                } else {
+                    sb.append(unescaped.charAt(i));    
+                }
             }
         }
         return sb.toString();
@@ -185,6 +191,14 @@ public class StringUtils {
 
         public String toString() {
             return str.substring(begin.index, end);
+        }
+
+        public int toInt() {
+            return Integer.parseInt(toString());
+        }
+
+        public <T> T map(Function<String, T> mapper) {
+            return mapper.apply(toString());
         }
     }
 }

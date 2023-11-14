@@ -12,6 +12,10 @@ public class LineStream {
         this.lines = lines;
     }
 
+    public List<String> lines() {
+        return lines;
+    }
+
     public int getLineCount() {
         return lines.size();
     }
