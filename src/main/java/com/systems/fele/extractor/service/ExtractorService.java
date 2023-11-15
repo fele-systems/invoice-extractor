@@ -18,7 +18,8 @@ public class ExtractorService {
 
     public ExtractorService() {
         availableExtractors = Map.of(
-            "BANCO INTER", new BancoInter()
+            "BANCO INTER", new BancoInter(),
+            "NU BANK", new NuBank()
         );
     }
 
