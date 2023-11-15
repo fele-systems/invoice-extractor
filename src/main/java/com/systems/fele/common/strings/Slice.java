@@ -1,5 +1,7 @@
 package com.systems.fele.common.strings;
 
+import java.util.function.Function;
+
 /**
  * Represents a slice of a string, containing a begin and an end.
  * <p>Both the begin and end goes to the same direction.
@@ -32,6 +34,17 @@ public record Slice(Index begin, int sliceEOF) {
     }
 
     /**
+     * Increases this slice so that more characters fit at the end of the slice,
+     * direction aware, while the characters satifies the predicate. Will stop
+     * and point at the first occurence of a non-satisfied predicate
+     * @param howManyChars number of characters
+     * @return a new slice
+     */
+    public Slice takeWhile(CharPredicate predicate) {
+        return new Slice(begin, sliceEOFAsIndex().skipWhile(predicate).getIndex());
+    }
+
+    /**
      * Decreases this slice so that it skips the first characters at the start of
      * slice, direction aware.
      * @param howManyChars number of characters
@@ -53,6 +66,27 @@ public record Slice(Index begin, int sliceEOF) {
     public Slice shift(int howManyPositions) {
         return new Slice(begin.skip(howManyPositions),
                 sliceEOFAsIndex().skip(howManyPositions).getIndex());
+    }
+
+    /**
+     * Reverses this slice so that the begin will be end and vice versa.
+     * A rev'ed slice will have the exact same content as the original, but
+     * the characters of the string will be in the reverse order.
+     */
+    public Slice rev() {
+        int newDirection = -begin.getDirection();
+        int newBegin = sliceEOF + newDirection;
+        int newEOF = begin.getIndex() + newDirection;
+        
+        return new Slice(new Index(newDirection, newBegin, begin.getString()), newEOF);
+    }
+
+    public <T> T map(Function<String, T> mapper) {
+        return mapper.apply(toString());
+    }
+
+    public int toInt() {
+        return Integer.parseInt(toString());
     }
 
     /**

@@ -71,10 +71,23 @@ public class Index {
     public Index skipWhile(CharPredicate predicate) {
         var tIndex = index;
         var eof = EOF();
-        while (tIndex != eof && predicate.test(peekChar())) {
+        while (tIndex != eof && predicate.test(string.charAt(tIndex))) {
             tIndex += direction;
         }
         return new Index(direction, tIndex, string);
+    }
+
+    public Index skipTo(char ch) {
+        return skipWhile(c -> c != ch);
+    }
+
+    /**
+     * Returns a index that advances to the oposite direction
+     * of this index
+     * @return a index
+     */
+    public Index rev() {
+        return new Index(-direction, index, string);
     }
 
     /**

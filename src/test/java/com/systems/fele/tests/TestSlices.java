@@ -130,4 +130,15 @@ public class TestSlices {
                 .skip(9999)
                 .getIndex(), "my string".length());
     }
+
+    @Test
+    void testRevMidOperation() {
+        var dik = Strings.begin("say kid backwards")
+            .skipTo(' ')
+            .skip(1)
+            .slice().take(3)
+            .rev();
+
+        assertEquals("dik", dik.toString());
+    }
 }
