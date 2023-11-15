@@ -69,7 +69,7 @@ public class BancoInter implements Extractor {
                     //.takeWhile(Character::isDigit)
                     .toString());
 
-            int instTotal = Integer.parseInt(Strings.reof(description)
+            int instTotal = Integer.parseInt(Strings.rbegin(description)
                     .skipTo(' ')
                     .rev()
                     .skip(1)

@@ -25,7 +25,7 @@ public class NuBank implements Extractor {
                 .skip(3)
                 .slice().takeWhile(Character::isAlphabetic)
                 .map(Months::monthStrToInt);
-        var year = Strings.reof(dueDateStr)
+        var year = Strings.rbegin(dueDateStr)
                 .slice()
                 .takeWhile(Character::isDigit)
                 .rev()
