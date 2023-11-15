@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import com.systems.fele.common.strings.Strings;
 import com.systems.fele.common.util.StringUtils;
 import com.systems.fele.extractor.exception.InvoiceFormatException;
 import com.systems.fele.extractor.model.Expense;
@@ -56,7 +57,7 @@ public class BancoInter implements Extractor {
         
         var description = expenseAsStr.substring(12, amountIndex - 1);
         
-        var installmentSectionIndex = StringUtils.indexOf(description, '\0');
+        var installmentSectionIndex = Strings.find(description, '\0');
         
         Installment installment = null;
         if (!installmentSectionIndex.isEOF()) {
@@ -68,7 +69,7 @@ public class BancoInter implements Extractor {
                     //.takeWhile(Character::isDigit)
                     .toString());
 
-            int instTotal = Integer.parseInt(StringUtils.rEnd(description)
+            int instTotal = Integer.parseInt(Strings.reof(description)
                     .skipTo(' ')
                     .rev()
                     .skip(1)
