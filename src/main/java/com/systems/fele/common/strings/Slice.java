@@ -6,11 +6,11 @@ import java.util.function.Function;
  * Represents a slice of a string, containing a begin and an end.
  * <p>Both the begin and end goes to the same direction.
  */
-public record Slice(Index begin, int sliceEOF) {
+public record Slice(Index begin, int sliceEOF) implements CharSequence {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(length());
         offloadTo(sb);
         return sb.toString();
     }
@@ -89,6 +89,10 @@ public record Slice(Index begin, int sliceEOF) {
         return Integer.parseInt(toString());
     }
 
+    public Index newIndexAtEnd() {
+        return new Index(begin.getDirection(), sliceEOF, begin.getString());
+    }
+
     /**
      * Appends characters included in this slice into output, direction aware.
      * 
@@ -101,5 +105,24 @@ public record Slice(Index begin, int sliceEOF) {
             output.append(begin.getString().charAt(tIndex));
             tIndex += begin.getDirection();
         }
+    }
+
+    public int getDirection() {
+        return begin.getDirection();
+    }
+
+    @Override
+    public int length() {
+        return (sliceEOF - begin.getIndex()) * getDirection();
+    }
+
+    @Override
+    public char charAt(int index) {
+        return begin.getString().charAt(begin.getIndex() + index * getDirection());
+    }
+
+    @Override
+    public CharSequence subSequence(int start, int end) {
+        return new Slice(begin.skip(start), sliceEOF + end * getDirection());
     }
 }
