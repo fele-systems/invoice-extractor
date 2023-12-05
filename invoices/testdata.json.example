@@ -1,0 +1,12 @@
+{
+    "extractors": {
+        "com.systems.fele.extractor.banks.BancoInter": {
+            "disabled": false,
+            "password": "<redacted>",
+            "files": [
+                "inter-september.pdf",
+                "/path/to/my/invoice/inter-november.pdf"
+            ]
+        },
+    }
+}
