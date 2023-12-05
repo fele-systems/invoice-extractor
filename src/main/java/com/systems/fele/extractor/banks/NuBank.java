@@ -5,13 +5,11 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
 import com.systems.fele.common.strings.Strings;
 import com.systems.fele.common.time.Months;
-import com.systems.fele.common.util.StringUtils;
 import com.systems.fele.common.util.Unchecked;
 import com.systems.fele.extractor.exception.BadInvoiceException;
 import com.systems.fele.extractor.exception.InvoiceFormatException;

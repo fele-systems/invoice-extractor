@@ -11,10 +11,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.systems.fele.extractor.banks.BancoInter;
 import com.systems.fele.extractor.banks.Extractor;
 import com.systems.fele.extractor.banks.InvoiceResource;
-import com.systems.fele.extractor.banks.NuBank;
 import com.systems.fele.extractor.banks.PdfInvoiceResource;
 import com.systems.fele.tests.data.TestData;
 
