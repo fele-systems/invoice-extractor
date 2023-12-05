@@ -51,6 +51,10 @@ public class LineStream {
         currentLine = 0;
     }
 
+    public boolean eof() {
+        return currentLine >= lines.size();
+    }
+
     public boolean find(String lineContent) {
         return find(lineContent::equals);
     }
