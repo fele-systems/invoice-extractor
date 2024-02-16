@@ -12,10 +12,10 @@ import java.util.Locale;
 
 import com.systems.fele.common.strings.Strings;
 import com.systems.fele.common.util.StringUtils;
+import com.systems.fele.extractor.entity.ExpenseEntity;
+import com.systems.fele.extractor.entity.InvoiceEntity;
 import com.systems.fele.extractor.exception.InvoiceFormatException;
-import com.systems.fele.extractor.model.Expense;
 import com.systems.fele.extractor.model.Installment;
-import com.systems.fele.extractor.model.Invoice;
 
 public class BancoInter implements Extractor {
 
@@ -42,7 +42,7 @@ public class BancoInter implements Extractor {
         return LocalDate.of(year, month, day);
     }
 
-    private Expense parseExpense(String expenseAsStr) {
+    private ExpenseEntity parseExpense(String expenseAsStr) {
         var date = parseExpenseDate(expenseAsStr);
 
         var amountIndex = expenseAsStr.lastIndexOf("R$");
@@ -59,7 +59,7 @@ public class BancoInter implements Extractor {
         
         var installmentSectionIndex = Strings.find(description, '\0');
         
-        Installment installment = null;
+        Installment installment = Installment.NULL;
         if (!installmentSectionIndex.isEOF()) {
             System.out.println(installmentSectionIndex.skip(1).skip("Parcela ".length()).slice());
             // Skip the next "Parcela " characters
@@ -85,19 +85,19 @@ public class BancoInter implements Extractor {
         var numberFormat = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.forLanguageTag("pt-BR")));
         numberFormat.setParseBigDecimal(true);
         try {
-            return new Expense((BigDecimal) numberFormat.parse(amount), description, date, installment);
+            return new ExpenseEntity(null, (BigDecimal) numberFormat.parse(amount), description, date, installment);
         } catch (ParseException e) {
             throw new InvoiceFormatException("Could not parse amount: " + amount);
         }
     }
 
     @Override
-    public Invoice extract(LineStream stream) {
+    public InvoiceEntity extract(LineStream stream) {
         if (!stream.find("VENCIMENTO")) {
             throw new InvoiceFormatException("Could not find due date");
         }
         var dueDate = stream.advanceAndGet();
-        var invoice = new Invoice(LocalDate.from(DateTimeFormatter.ofPattern("dd/MM/yyyy").parse(dueDate)), new ArrayList<>());
+        var invoice = new InvoiceEntity(LocalDate.from(DateTimeFormatter.ofPattern("dd/MM/yyyy").parse(dueDate)), new ArrayList<>());
 
         if (!stream.find("Despesas da fatura")) {
             throw new InvoiceFormatException("Could not find expenses list");

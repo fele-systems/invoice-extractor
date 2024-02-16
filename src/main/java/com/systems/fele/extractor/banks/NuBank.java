@@ -11,16 +11,16 @@ import java.util.regex.Pattern;
 import com.systems.fele.common.strings.Strings;
 import com.systems.fele.common.time.Months;
 import com.systems.fele.common.util.Unchecked;
+import com.systems.fele.extractor.entity.ExpenseEntity;
+import com.systems.fele.extractor.entity.InvoiceEntity;
 import com.systems.fele.extractor.exception.BadInvoiceException;
 import com.systems.fele.extractor.exception.InvoiceFormatException;
-import com.systems.fele.extractor.model.Expense;
 import com.systems.fele.extractor.model.Installment;
-import com.systems.fele.extractor.model.Invoice;
 
 public class NuBank implements Extractor {
 
     @Override
-    public Invoice extract(LineStream stream) {
+    public InvoiceEntity extract(LineStream stream) {
 
         if (!stream.find(line -> line.startsWith("Data do vencimento: "))) {
             throw new InvoiceFormatException("Could not find invoice due date");
@@ -46,7 +46,7 @@ public class NuBank implements Extractor {
         var isExpenseFormat = Pattern.compile("^\\d\\d \\w{3} .*\\d+,\\d\\d$");
         var realFormat = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.forLanguageTag("pt-BR")));
         realFormat.setParseBigDecimal(true);
-        var expenses = new ArrayList<Expense>();
+        var expenses = new ArrayList<ExpenseEntity>();
         
         while (stream.find(line -> startOfExpenses.matcher(line).matches())) {
             String currentExpense = stream.advanceAndGet();
@@ -78,7 +78,7 @@ public class NuBank implements Extractor {
                         .skip(1)
                         .slice().takeWhile(ch -> ch != '-').take(1);
 
-                Installment installment = null;
+                Installment installment = Installment.NULL;
 
                 if (installmentFormat.matcher(slices.rev().toString()).matches()) {
                     // Why matches twice !?!?
@@ -97,7 +97,7 @@ public class NuBank implements Extractor {
                     }
                 }
 
-                expenses.add(new Expense(expenseValue, description.toString().trim(), expenseDate, installment));
+                expenses.add(new ExpenseEntity(null, expenseValue, description.toString().trim(), expenseDate, installment));
                 stream.mark();
                 currentExpense = stream.advanceAndGet();
             }
@@ -106,8 +106,7 @@ public class NuBank implements Extractor {
         if (stream.eof()) stream.rollback();
         System.out.println("Unmatched line: " + stream.getLine());
 
-        System.out.println(dueDate);
-        return new Invoice(LocalDate.from(dueDate), expenses);
+        return new InvoiceEntity(LocalDate.from(dueDate), expenses);
     }
 
     @Override
