@@ -13,15 +13,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Represents a expense inside an invoice
  */
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class ExpenseEntity {
 
