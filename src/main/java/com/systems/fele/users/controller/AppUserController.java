@@ -37,14 +37,14 @@ public class AppUserController {
     @GetMapping(path="/getuser",
         produces = {MediaType.APPLICATION_JSON_VALUE})
     AppUser getUser(@RequestParam("id") long id) {
-        var user = userRepository.findById(Long.toString(id));
+        var user = userRepository.findById(id);
         return user.orElse(null);
     }
 
     @DeleteMapping(path="/remove",
         produces = {MediaType.APPLICATION_JSON_VALUE})
     AppUser remove(@RequestParam("id") long id) {
-        var user = userRepository.findById(Long.toString(id));
+        var user = userRepository.findById(id);
 
         user.ifPresent(userRepository::delete);
         return user.orElse(null);
