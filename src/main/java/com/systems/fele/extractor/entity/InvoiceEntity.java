@@ -1,4 +1,4 @@
-package com.systems.fele.extractor.model;
+package com.systems.fele.extractor.entity;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -7,20 +7,45 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.systems.fele.users.model.AppUser;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@AllArgsConstructor
-public class Invoice {
-    private long id;
+@Data
+@Entity
+@NoArgsConstructor
+public class InvoiceEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate dueDate;
+    @ManyToOne
+    @JoinColumn(name = "appuser_id")
+    AppUser appUser;
 
-    private List<Expense> expenses;
+    LocalDate dueDate;
+
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
+    List<ExpenseEntity> expenses;
+
+    public InvoiceEntity(LocalDate dueDate, List<ExpenseEntity> expenses) {
+        this(null, dueDate, expenses);
+    }
+
+    public InvoiceEntity(AppUser appUser, LocalDate dueDate, List<ExpenseEntity> expenses) {
+        this.appUser = appUser;
+        this.dueDate = dueDate;
+        this.expenses = expenses;
+    }
 
     @Override
     public String toString() {

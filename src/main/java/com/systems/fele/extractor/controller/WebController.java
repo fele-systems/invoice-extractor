@@ -46,7 +46,7 @@ public class WebController {
         
         var resource = new PdfInvoiceResource(file.getInputStream(), Optional.ofNullable(password));
 
-        var invoice = extractorService.extract(resource);
+        var invoice = extractorService.extract(resource, null);
 
         attributes.addFlashAttribute("invoice", invoice);
         attributes.addFlashAttribute("extracted", true);
