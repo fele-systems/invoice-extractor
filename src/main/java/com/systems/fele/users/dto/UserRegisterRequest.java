@@ -13,6 +13,6 @@ public class UserRegisterRequest {
     private String lastName;
     private String email;
     private String password;
-    private boolean admin;
+    private boolean admin = false;
 
 }

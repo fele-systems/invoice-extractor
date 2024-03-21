@@ -5,15 +5,18 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 
@@ -24,21 +27,23 @@ import com.systems.fele.users.entity.AppUser;
 import com.systems.fele.users.repository.AppUserRepository;
 import com.systems.fele.users.service.AppUserService;
 
-import jakarta.websocket.server.PathParam;
-
 @RestController
 @RequestMapping("/rest/api/users")
 public class AppUserController {
 
+    
     @Autowired
-    AppUserService appUserService;
+    public AppUserController(AppUserService appUserService, AppUserRepository userRepository) {
+        this.appUserService = appUserService;
+        this.userRepository = userRepository;
+    }
 
-    @Autowired
-    AppUserRepository userRepository;
+    final AppUserService appUserService;
+    final AppUserRepository userRepository;
 
     @PostMapping(path = "/register", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
             MediaType.APPLICATION_JSON_VALUE })
-    UserDto register(UserRegisterRequest userDto) {
+    UserDto register(@RequestBody UserRegisterRequest userDto) {
         var appUser = appUserService.registerUser(userDto);
 
         return UserDto.fromAppUser(appUser);
@@ -56,24 +61,22 @@ public class AppUserController {
     }
 
     @GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_JSON_VALUE })
-    UserDto getUser(@PathParam("id") long id) {
+    UserDto getUser(@NonNull @PathVariable("id") Long id) {
         var user = userRepository.findById(id);
         return user.map(UserDto::fromAppUser).orElseThrow();
     }
 
-    @DeleteMapping(path = "/remove", produces = { MediaType.APPLICATION_JSON_VALUE })
-    AppUser remove(@RequestParam("id") long id) {
+    @DeleteMapping(path = "/remove/{id}", produces = { MediaType.APPLICATION_JSON_VALUE })
+    AppUser remove(@NonNull @PathVariable("id") Long id) {
         var user = userRepository.findById(id);
 
         user.ifPresent(userRepository::delete);
         return user.orElse(null);
     }
 
-    
-
     @ExceptionHandler({ Exception.class })
     public ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
         ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage(), "error occurred");
-        return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
+        return new ResponseEntity<>(apiError, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

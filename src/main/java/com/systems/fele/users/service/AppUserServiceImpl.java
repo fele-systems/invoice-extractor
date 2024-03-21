@@ -33,11 +33,23 @@ public class AppUserServiceImpl implements AppUserService {
     public AppUser registerUser(UserRegisterRequest userDto) {
         
         if (StringUtils.isNullOrBlank(userDto.getEmail())) {
-            throw new RuntimeException("Invalid empty username");
+            throw new RuntimeException("Empty email");
         }
 
         if (!isEmailAvailable(userDto.getEmail())) {
             throw new RuntimeException("The requested email (" + userDto.getEmail() + ") is already taken. Please use another");
+        }
+
+        if (StringUtils.isNullOrBlank(userDto.getPassword())) {
+            throw new RuntimeException("Empty password");
+        }
+
+        if (StringUtils.isNullOrBlank(userDto.getFirstName())) {
+            throw new RuntimeException("Empty firstName");
+        }
+
+        if (StringUtils.isNullOrBlank(userDto.getLastName())) {
+            throw new RuntimeException("Empty lastName");
         }
 
         var appUser = new AppUser();

@@ -1,6 +1,5 @@
 package com.systems.fele.users.security;
 
-import java.nio.file.attribute.UserPrincipal;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -16,7 +15,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class AppUserPrincipal implements UserDetails {
-    AppUser appUser;
+    transient AppUser appUser;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
