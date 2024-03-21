@@ -1,0 +1,90 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "Invoices",
+    "dateExported": "2024-03-21T22:10:05.162Z",
+    "version": "1.1",
+    "folders": [
+        {
+            "_id": "08f1bf40-b502-4c4f-8c63-cca3cd4912af",
+            "name": "users",
+            "containerId": "",
+            "created": "2024-03-21T21:16:23.766Z",
+            "sortNum": 10000,
+            "settings": {
+                "auth": {
+                    "type": "basic",
+                    "basic": {
+                        "username": "{{admin-username}}",
+                        "password": "{{admin-password}}"
+                    }
+                }
+            }
+        }
+    ],
+    "requests": [
+        {
+            "_id": "cb61d0fd-3718-4426-a892-3c4a7fd3ac9b",
+            "colId": "4c410f84-f911-4eaf-a36d-22d849eb740e",
+            "containerId": "08f1bf40-b502-4c4f-8c63-cca3cd4912af",
+            "name": "register",
+            "url": "{{invoices-server-base-url}}/rest/api/users/register",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2024-03-21T21:16:41.436Z",
+            "modified": "2024-03-21T22:06:20.236Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"email\": \"fele@local\",\n  \"firstName\": \"fele\",\n  \"lastName\": \"systems\",\n  \"password\": \"notbad\",\n  \"admin\": false\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "d0b56286-1ad1-4198-8097-94fb098dc67e",
+            "colId": "4c410f84-f911-4eaf-a36d-22d849eb740e",
+            "containerId": "08f1bf40-b502-4c4f-8c63-cca3cd4912af",
+            "name": "list",
+            "url": "{{invoices-server-base-url}}/rest/api/users",
+            "method": "GET",
+            "sortNum": 20000,
+            "created": "2024-03-21T21:18:45.234Z",
+            "modified": "2024-03-21T21:48:23.592Z",
+            "headers": [],
+            "params": [],
+            "reqType": "post",
+            "tests": []
+        },
+        {
+            "_id": "9d270643-d935-4af3-b79b-f44fff699eaa",
+            "colId": "4c410f84-f911-4eaf-a36d-22d849eb740e",
+            "containerId": "08f1bf40-b502-4c4f-8c63-cca3cd4912af",
+            "name": "get user",
+            "url": "{{invoices-server-base-url}}/rest/api/users/1",
+            "method": "GET",
+            "sortNum": 30000,
+            "created": "2024-03-21T21:57:07.839Z",
+            "modified": "2024-03-21T21:57:17.414Z",
+            "headers": [],
+            "params": [],
+            "reqType": "get",
+            "tests": []
+        },
+        {
+            "_id": "936320b4-1636-4d9c-bcbc-4f53594f055c",
+            "colId": "4c410f84-f911-4eaf-a36d-22d849eb740e",
+            "containerId": "08f1bf40-b502-4c4f-8c63-cca3cd4912af",
+            "name": "remove",
+            "url": "{{invoices-server-base-url}}/rest/api/users/remove/2",
+            "method": "DELETE",
+            "sortNum": 40000,
+            "created": "2024-03-21T22:07:32.561Z",
+            "modified": "2024-03-21T22:08:13.191Z",
+            "headers": [],
+            "params": [],
+            "reqType": "get",
+            "tests": []
+        }
+    ]
+}
