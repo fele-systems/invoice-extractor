@@ -15,7 +15,7 @@ import com.systems.fele.extractor.banks.PdfInvoiceResource;
 import com.systems.fele.extractor.model.Expense;
 import com.systems.fele.extractor.model.Invoice;
 import com.systems.fele.extractor.service.ExtractorService;
-import com.systems.fele.users.model.AppUser;
+import com.systems.fele.users.entity.AppUser;
 import com.systems.fele.users.repository.AppUserRepository;
 
 @RestController

@@ -1,4 +1,4 @@
-package com.systems.fele.users.model;
+package com.systems.fele.users.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,5 +17,10 @@ public class AppUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    String name;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String password;
+    private boolean admin;
+    private boolean enabled;
 }

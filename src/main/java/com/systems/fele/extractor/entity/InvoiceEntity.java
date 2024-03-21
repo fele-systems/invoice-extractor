@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
-import com.systems.fele.users.model.AppUser;
+import com.systems.fele.users.entity.AppUser;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;

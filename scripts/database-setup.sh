@@ -1,5 +1,10 @@
 #! /bin/bash
 
+if [[ "$1" == "install" ]]; then
+    apt update && apt install postgresql -y
+    service postgresql start
+fi
+
 if ! which psql; then
     echo 'Could not find psql client on path' 1>&2
     exit 1

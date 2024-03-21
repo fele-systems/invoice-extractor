@@ -14,7 +14,7 @@ import com.systems.fele.extractor.banks.NuBank;
 import com.systems.fele.extractor.entity.InvoiceEntity;
 import com.systems.fele.extractor.exception.InvoiceFormatException;
 import com.systems.fele.extractor.repository.InvoiceRepository;
-import com.systems.fele.users.model.AppUser;
+import com.systems.fele.users.entity.AppUser;
 
 @Service
 public class ExtractorService {
