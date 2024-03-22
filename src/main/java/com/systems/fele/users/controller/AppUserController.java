@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -25,6 +24,7 @@ import com.systems.fele.users.dto.UserDto;
 import com.systems.fele.users.dto.UserRegisterRequest;
 import com.systems.fele.users.entity.AppUser;
 import com.systems.fele.users.repository.AppUserRepository;
+import com.systems.fele.users.security.AppUserPrincipal;
 import com.systems.fele.users.service.AppUserService;
 
 @RestController
@@ -50,8 +50,9 @@ public class AppUserController {
     }
 
     @GetMapping(path = "/me", produces = { MediaType.APPLICATION_JSON_VALUE })
-    Object getMe() {
-        return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    UserDto getMe() {
+        var userPrincipal = (AppUserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return UserDto.fromAppUser(userPrincipal.getAppUser());
     }
 
     @GetMapping(path = {"", "/" }, produces = { MediaType.APPLICATION_JSON_VALUE })
@@ -67,11 +68,11 @@ public class AppUserController {
     }
 
     @DeleteMapping(path = "/remove/{id}", produces = { MediaType.APPLICATION_JSON_VALUE })
-    AppUser remove(@NonNull @PathVariable("id") Long id) {
+    UserDto remove(@NonNull @PathVariable("id") Long id) {
         var user = userRepository.findById(id);
 
         user.ifPresent(userRepository::delete);
-        return user.orElse(null);
+        return user.map(UserDto::fromAppUser).orElse(null);
     }
 
     @ExceptionHandler({ Exception.class })
