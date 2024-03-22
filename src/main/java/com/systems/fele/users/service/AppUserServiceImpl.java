@@ -1,23 +1,32 @@
 package com.systems.fele.users.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.systems.fele.common.util.StringUtils;
 import com.systems.fele.users.dto.UserRegisterRequest;
+import com.systems.fele.users.dto.UserUpdateRequest;
 import com.systems.fele.users.entity.AppUser;
 import com.systems.fele.users.repository.AppUserRepository;
+import com.systems.fele.users.security.AppUserPrincipal;
 
 import jakarta.annotation.PostConstruct;
 
 @Service
 public class AppUserServiceImpl implements AppUserService {
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
+    
     @Autowired
-    private AppUserRepository appUserRepository;
+    public AppUserServiceImpl(PasswordEncoder passwordEncoder, AppUserRepository appUserRepository) {
+        this.passwordEncoder = passwordEncoder;
+        this.appUserRepository = appUserRepository;
+    }
+
+    private final PasswordEncoder passwordEncoder;
+    private final AppUserRepository appUserRepository;
 
     public static final String ADMIN_EMAIL = "admin@fele-systems.com";
 
@@ -67,6 +76,53 @@ public class AppUserServiceImpl implements AppUserService {
     @Override
     public boolean isEmailAvailable(String email) {
         return !appUserRepository.findByEmail(email).isPresent();
+    }
+
+    
+
+    @Override
+    public AppUser updateUser(long id, UserUpdateRequest userUpdateRequest) {
+        var actor = loggedInUser();
+        if (actor.getId() != id && !actor.isAdmin()) {
+            throw new AccessDeniedException("You're not authorized to modify another user.");
+        }
+
+        if (!actor.isAdmin() && Boolean.TRUE == userUpdateRequest.getAdmin()) {
+            throw new AccessDeniedException("You're not authorized to promote yourself as administrator.");
+        }
+
+        // TODO Change this exception to a 404 not found
+        var targetUser = appUserRepository.findById(id)
+                .orElseThrow(()->new RuntimeException("The user " + id + " does not exist"));
+        
+        if (userUpdateRequest.getAdmin() == null) userUpdateRequest.setAdmin(targetUser.isAdmin());
+        if (userUpdateRequest.getEmail() == null) userUpdateRequest.setEmail(targetUser.getEmail());
+        if (userUpdateRequest.getFirstName() == null) userUpdateRequest.setFirstName(targetUser.getFirstName());
+        if (userUpdateRequest.getLastName() == null) userUpdateRequest.setLastName(targetUser.getLastName());
+        if (userUpdateRequest.getPassword() == null)
+            userUpdateRequest.setPassword(targetUser.getPassword());
+        else
+            userUpdateRequest.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
+        if (userUpdateRequest.getEnabled() == null) userUpdateRequest.setEnabled(targetUser.isEnabled());
+
+        var appUser = new AppUser();
+
+        appUser.setId(id);
+        appUser.setFirstName(userUpdateRequest.getFirstName());
+        appUser.setLastName(userUpdateRequest.getLastName());
+        appUser.setEmail(userUpdateRequest.getEmail());
+        appUser.setPassword(userUpdateRequest.getPassword());
+        appUser.setAdmin(userUpdateRequest.getAdmin());
+        appUser.setEnabled(userUpdateRequest.getEnabled());
+        
+        return appUserRepository.saveAndFlush(appUser);
+    }
+    
+    @Override
+    public AppUser loggedInUser() {
+        return ((AppUserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal()).getAppUser();
     }
 
     

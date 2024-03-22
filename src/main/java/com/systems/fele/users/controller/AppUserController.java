@@ -8,12 +8,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,9 +22,8 @@ import org.springframework.web.context.request.WebRequest;
 import com.systems.fele.common.http.ApiError;
 import com.systems.fele.users.dto.UserDto;
 import com.systems.fele.users.dto.UserRegisterRequest;
-import com.systems.fele.users.entity.AppUser;
+import com.systems.fele.users.dto.UserUpdateRequest;
 import com.systems.fele.users.repository.AppUserRepository;
-import com.systems.fele.users.security.AppUserPrincipal;
 import com.systems.fele.users.service.AppUserService;
 
 @RestController
@@ -51,8 +50,7 @@ public class AppUserController {
 
     @GetMapping(path = "/me", produces = { MediaType.APPLICATION_JSON_VALUE })
     UserDto getMe() {
-        var userPrincipal = (AppUserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return UserDto.fromAppUser(userPrincipal.getAppUser());
+        return UserDto.fromAppUser(appUserService.loggedInUser());
     }
 
     @GetMapping(path = {"", "/" }, produces = { MediaType.APPLICATION_JSON_VALUE })
@@ -65,6 +63,11 @@ public class AppUserController {
     UserDto getUser(@NonNull @PathVariable("id") Long id) {
         var user = userRepository.findById(id);
         return user.map(UserDto::fromAppUser).orElseThrow();
+    }
+
+    @PutMapping(path = "/{id}", produces = { MediaType.APPLICATION_JSON_VALUE })
+    UserDto updateUser(@NonNull @PathVariable("id") Long id, @RequestBody UserUpdateRequest userUpdateRequest) {
+        return UserDto.fromAppUser(appUserService.updateUser(id, userUpdateRequest));
     }
 
     @DeleteMapping(path = "/remove/{id}", produces = { MediaType.APPLICATION_JSON_VALUE })
