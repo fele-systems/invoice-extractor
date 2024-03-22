@@ -17,7 +17,7 @@ import com.systems.fele.extractor.model.Expense;
 import com.systems.fele.extractor.model.Invoice;
 import com.systems.fele.extractor.model.ListInvoicesResponse;
 import com.systems.fele.extractor.repository.InvoiceRepository;
-import com.systems.fele.users.model.AppUser;
+import com.systems.fele.users.entity.AppUser;
 
 @RestController
 @RequestMapping("/rest/api/invoice")

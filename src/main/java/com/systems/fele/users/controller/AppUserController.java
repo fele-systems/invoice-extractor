@@ -3,51 +3,84 @@ package com.systems.fele.users.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
 
-import com.systems.fele.users.model.AppUser;
+import com.systems.fele.common.http.ApiError;
+import com.systems.fele.users.dto.UserDto;
+import com.systems.fele.users.dto.UserRegisterRequest;
+import com.systems.fele.users.dto.UserUpdateRequest;
 import com.systems.fele.users.repository.AppUserRepository;
+import com.systems.fele.users.service.AppUserService;
 
 @RestController
 @RequestMapping("/rest/api/users")
 public class AppUserController {
 
+    
     @Autowired
-    AppUserRepository userRepository;
-
-    @PostMapping(path="/create",
-        consumes = {MediaType.APPLICATION_JSON_VALUE},
-        produces = {MediaType.APPLICATION_JSON_VALUE})
-    AppUser create(@RequestParam("name") String name) {
-        return userRepository.save(new AppUser(null, name));
+    public AppUserController(AppUserService appUserService, AppUserRepository userRepository) {
+        this.appUserService = appUserService;
+        this.userRepository = userRepository;
     }
 
-    @GetMapping(path="/list",
-        produces = {MediaType.APPLICATION_JSON_VALUE})
-    List<AppUser> list() {
-        return userRepository.findAll();
+    final AppUserService appUserService;
+    final AppUserRepository userRepository;
+
+    @PostMapping(path = "/register", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
+            MediaType.APPLICATION_JSON_VALUE })
+    UserDto register(@RequestBody UserRegisterRequest userDto) {
+        var appUser = appUserService.registerUser(userDto);
+
+        return UserDto.fromAppUser(appUser);
     }
 
-    @GetMapping(path="/getuser",
-        produces = {MediaType.APPLICATION_JSON_VALUE})
-    AppUser getUser(@RequestParam("id") long id) {
+    @GetMapping(path = "/me", produces = { MediaType.APPLICATION_JSON_VALUE })
+    UserDto getMe() {
+        return UserDto.fromAppUser(appUserService.loggedInUser());
+    }
+
+    @GetMapping(path = {"", "/" }, produces = { MediaType.APPLICATION_JSON_VALUE })
+    ResponseEntity<List<UserDto>> list() {
+        var users = userRepository.findAll().stream().map(UserDto::fromAppUser).toList();
+        return ResponseEntity.ok().body(users);
+    }
+
+    @GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_JSON_VALUE })
+    UserDto getUser(@NonNull @PathVariable("id") Long id) {
         var user = userRepository.findById(id);
-        return user.orElse(null);
+        return user.map(UserDto::fromAppUser).orElseThrow();
     }
 
-    @DeleteMapping(path="/remove",
-        produces = {MediaType.APPLICATION_JSON_VALUE})
-    AppUser remove(@RequestParam("id") long id) {
+    @PutMapping(path = "/{id}", produces = { MediaType.APPLICATION_JSON_VALUE })
+    UserDto updateUser(@NonNull @PathVariable("id") Long id, @RequestBody UserUpdateRequest userUpdateRequest) {
+        return UserDto.fromAppUser(appUserService.updateUser(id, userUpdateRequest));
+    }
+
+    @DeleteMapping(path = "/remove/{id}", produces = { MediaType.APPLICATION_JSON_VALUE })
+    UserDto remove(@NonNull @PathVariable("id") Long id) {
         var user = userRepository.findById(id);
 
         user.ifPresent(userRepository::delete);
-        return user.orElse(null);
+        return user.map(UserDto::fromAppUser).orElse(null);
     }
 
+    @ExceptionHandler({ Exception.class })
+    public ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
+        ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage(), "error occurred");
+        return new ResponseEntity<>(apiError, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
