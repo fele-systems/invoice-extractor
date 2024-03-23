@@ -1,9 +1,7 @@
-package com.systems.fele.extractor.entity;
+package com.systems.fele.invoices.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
-import com.systems.fele.extractor.model.Installment;
 
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;

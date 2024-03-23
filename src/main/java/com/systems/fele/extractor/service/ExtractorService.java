@@ -11,9 +11,9 @@ import com.systems.fele.extractor.banks.BancoInter;
 import com.systems.fele.extractor.banks.Extractor;
 import com.systems.fele.extractor.banks.InvoiceResource;
 import com.systems.fele.extractor.banks.NuBank;
-import com.systems.fele.extractor.entity.InvoiceEntity;
 import com.systems.fele.extractor.exception.InvoiceFormatException;
-import com.systems.fele.extractor.repository.InvoiceRepository;
+import com.systems.fele.invoices.entity.InvoiceEntity;
+import com.systems.fele.invoices.repository.InvoiceRepository;
 import com.systems.fele.users.entity.AppUser;
 
 @Service

@@ -12,10 +12,10 @@ import java.util.Locale;
 
 import com.systems.fele.common.strings.Strings;
 import com.systems.fele.common.util.StringUtils;
-import com.systems.fele.extractor.entity.ExpenseEntity;
-import com.systems.fele.extractor.entity.InvoiceEntity;
 import com.systems.fele.extractor.exception.InvoiceFormatException;
-import com.systems.fele.extractor.model.Installment;
+import com.systems.fele.invoices.entity.ExpenseEntity;
+import com.systems.fele.invoices.entity.Installment;
+import com.systems.fele.invoices.entity.InvoiceEntity;
 
 public class BancoInter implements Extractor {
 

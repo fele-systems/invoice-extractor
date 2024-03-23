@@ -5,8 +5,9 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.systems.fele.extractor.entity.ExpenseEntity;
-import com.systems.fele.extractor.model.Installment.InstallmentSerializer;
+import com.systems.fele.invoices.entity.ExpenseEntity;
+import com.systems.fele.invoices.entity.Installment;
+import com.systems.fele.invoices.entity.Installment.InstallmentSerializer;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

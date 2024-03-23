@@ -1,11 +1,11 @@
-package com.systems.fele.extractor.repository;
+package com.systems.fele.invoices.repository;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.systems.fele.extractor.entity.InvoiceEntity;
+import com.systems.fele.invoices.entity.InvoiceEntity;
 import com.systems.fele.users.entity.AppUser;
 
 public interface InvoiceRepository extends JpaRepository<InvoiceEntity, Long> {

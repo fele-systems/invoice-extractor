@@ -1,8 +1,8 @@
-package com.systems.fele.extractor.repository;
+package com.systems.fele.invoices.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.systems.fele.extractor.entity.ExpenseEntity;
+import com.systems.fele.invoices.entity.ExpenseEntity;
 
 public interface ExpenseRepository extends JpaRepository<ExpenseEntity, Long> {
     

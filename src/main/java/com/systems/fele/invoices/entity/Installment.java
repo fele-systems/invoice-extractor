@@ -1,4 +1,4 @@
-package com.systems.fele.extractor.model;
+package com.systems.fele.invoices.entity;
 
 import java.io.IOException;
 
