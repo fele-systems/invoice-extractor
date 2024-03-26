@@ -96,8 +96,12 @@ public class NuBank implements Extractor {
                         description = description.take(-slices.length() - 2);
                     }
                 }
-
-                expenses.add(new ExpenseEntity(null, expenseValue, description.toString().trim(), expenseDate, installment));
+                expenses.add(ExpenseEntity.builder()
+                        .amount(expenseValue)
+                        .description(description.toString().trim())
+                        .date(expenseDate)
+                        .installment(installment)
+                        .build());
                 stream.mark();
                 currentExpense = stream.advanceAndGet();
             }

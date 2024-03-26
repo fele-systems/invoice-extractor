@@ -18,5 +18,7 @@ public interface InvoiceService {
 
     InvoiceEntity getInvoice(long invoiceId);
 
+    InvoiceEntity deleteInvoice(long invoiceId);
+
     ExpenseEntity createExpense(long invoiceId, CreateExpenseRequest expenseRequest);
 }

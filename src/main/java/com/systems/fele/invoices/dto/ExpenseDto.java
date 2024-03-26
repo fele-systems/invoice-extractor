@@ -30,6 +30,6 @@ public class ExpenseDto {
     private Installment installment;
 
     public static ExpenseDto fromEntity(ExpenseEntity entity) {
-        return new ExpenseDto(entity.getId(), entity.getAmount(), entity.getDescription(), entity.getDate(), entity.getInstallment());
+        return new ExpenseDto(entity.getLocalId(), entity.getAmount(), entity.getDescription(), entity.getDate(), entity.getInstallment());
     }
 }

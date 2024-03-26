@@ -1,9 +1,11 @@
 package com.systems.fele.invoices.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import com.systems.fele.invoices.dto.CreateExpenseRequest;
@@ -37,18 +39,26 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public InvoiceEntity createInvoice(AppUser appUser, CreateInvoiceRequest invoiceRequest) {
     
-        var invoiceEntity = new InvoiceEntity(appUser, invoiceRequest.getDueDate(), invoiceRequest.getExpenses()
-                .stream()
-                .map(expense -> new ExpenseEntity(
-                        null,
-                        expense.getAmount(),
-                        expense.getDescription(),
-                        expense.getDate(),
-                        expense.getInstallment())
-                )
-                .collect(Collectors.toList()));
-        
-        return invoiceRepository.save(invoiceEntity);
+        var expenseEntities = new ArrayList<ExpenseEntity>();
+        long localIdCounter = 1;
+        var invoiceEntity = new InvoiceEntity(appUser, invoiceRequest.getDueDate(), expenseEntities);
+
+        invoiceEntity = invoiceRepository.save(invoiceEntity);
+
+        for (var expenseRequest : invoiceRequest.getExpenses()) {
+            expenseEntities.add(ExpenseEntity.builder()
+                    .localId(localIdCounter++)
+                    .invoice(invoiceEntity)
+                    .amount(expenseRequest.getAmount())
+                    .description(expenseRequest.getDescription())
+                    .date(expenseRequest.getDate())
+                    .installment(expenseRequest.getInstallment())
+                    .build());
+        }
+
+        expenseRepository.saveAll(expenseEntities);
+
+        return invoiceEntity;
     }
 
     @Override
@@ -58,21 +68,40 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    @NonNull
     public InvoiceEntity getInvoice(long invoiceId) {
         return invoiceRepository.findById(invoiceId).orElseThrow();
     }
 
+    @SuppressWarnings("null")
     @Override
     public ExpenseEntity createExpense(long invoiceId, CreateExpenseRequest expenseRequest) {
         var invoice = getInvoice(invoiceId);
 
-        return expenseRepository.save(new ExpenseEntity(
-                invoice,
-                expenseRequest.getAmount(),
-                expenseRequest.getDescription(),
-                expenseRequest.getDate(),
-                expenseRequest.getInstallment())
-        );
+        long nextLocalId = invoice.getExpenses().stream()
+                .sorted(Comparator.comparingLong(ExpenseEntity::getLocalId).reversed())
+                .findFirst()
+                .orElse(ExpenseEntity.builder().localId(1).build()).getLocalId() + 1;
+                
+
+        var expense = ExpenseEntity.builder()
+            .localId(nextLocalId)
+            .invoice(invoice)
+            .amount(expenseRequest.getAmount())
+            .description(expenseRequest.getDescription())
+            .date(expenseRequest.getDate())
+            .installment(expenseRequest.getInstallment())
+            .build();
+
+        return expenseRepository.save(expense);
+    }
+
+    @Override
+    public InvoiceEntity deleteInvoice(long invoiceId) {
+        var invoiceEntity = getInvoice(invoiceId);
+
+        invoiceRepository.delete(invoiceEntity);
+        return invoiceEntity;
     }
     
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,7 +35,6 @@ public class InvoiceController {
         this.appUserService = appUserService;
     }
 
-
     @PostMapping
     public InvoiceDto create(@RequestBody CreateInvoiceRequest invoiceRequest) {
         return InvoiceDto.fromEntity(invoiceService.createInvoice(appUserService.loggedInUser(), invoiceRequest));
@@ -58,6 +58,11 @@ public class InvoiceController {
                                 .reduce(BigDecimal::add)
                                 .orElse(BigDecimal.ZERO)))
                 .collect(Collectors.toList());
+    }
+
+    @DeleteMapping("/{id}")
+    public InvoiceDto deleteInvoice(@PathVariable Long id) {
+        return InvoiceDto.fromEntity(invoiceService.deleteInvoice(id));
     }
 
     @PostMapping("/{id}/expenses")

@@ -85,7 +85,12 @@ public class BancoInter implements Extractor {
         var numberFormat = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.forLanguageTag("pt-BR")));
         numberFormat.setParseBigDecimal(true);
         try {
-            return new ExpenseEntity(null, (BigDecimal) numberFormat.parse(amount), description, date, installment);
+            return ExpenseEntity.builder()
+                    .amount((BigDecimal) numberFormat.parse(amount))
+                    .description(description)
+                    .date(date)
+                    .installment(installment)
+                    .build();
         } catch (ParseException e) {
             throw new InvoiceFormatException("Could not parse amount: " + amount);
         }
