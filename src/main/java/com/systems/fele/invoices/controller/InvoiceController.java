@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,7 @@ import com.systems.fele.invoices.dto.CreateInvoiceRequest;
 import com.systems.fele.invoices.dto.ExpenseDto;
 import com.systems.fele.invoices.dto.InvoiceDto;
 import com.systems.fele.invoices.dto.ShortInvoiceDto;
+import com.systems.fele.invoices.dto.UpdateExpenseRequest;
 import com.systems.fele.invoices.entity.ExpenseEntity;
 import com.systems.fele.invoices.service.InvoiceService;
 import com.systems.fele.users.service.AppUserService;
@@ -65,8 +67,25 @@ public class InvoiceController {
         return InvoiceDto.fromEntity(invoiceService.deleteInvoice(id));
     }
 
+
+
     @PostMapping("/{id}/expenses")
     public ExpenseDto createExpense(@PathVariable Long id, @RequestBody CreateExpenseRequest expenseRequest) {
         return ExpenseDto.fromEntity(invoiceService.createExpense(id, expenseRequest));
+    }
+
+    @GetMapping("/{invoiceId}/expenses/{expenseId}")
+    public ExpenseDto getExpense(@PathVariable Long invoiceId, @PathVariable Long expenseId) {
+        return ExpenseDto.fromEntity(invoiceService.getExpense(invoiceId, expenseId));
+    }
+
+    @PutMapping("/{invoiceId}/expenses/{expenseId}")
+    public ExpenseDto updateExpense(@PathVariable Long invoiceId, @PathVariable Long expenseId, @RequestBody UpdateExpenseRequest expenseRequest) {
+        return ExpenseDto.fromEntity(invoiceService.updateExpense(invoiceId, expenseId, expenseRequest));
+    }
+
+    @DeleteMapping("/{invoiceId}/expenses/{expenseId}")
+    public ExpenseDto deleteExpense(@PathVariable Long invoiceId, @PathVariable Long expenseId) {
+        return ExpenseDto.fromEntity(invoiceService.deleteExpense(invoiceId, expenseId));
     }
 }

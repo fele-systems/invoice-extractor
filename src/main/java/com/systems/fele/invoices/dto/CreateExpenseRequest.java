@@ -30,7 +30,7 @@ public class CreateExpenseRequest {
 
     @JsonSerialize(using = InstallmentSerializer.class)
     @JsonDeserialize(using = InstallmentDeserializer.class)
-    private Installment installment;
+    private Installment installment = Installment.NULL;
 
     public Installment getInstallment() {
         return installment == null ? Installment.NULL : installment;
