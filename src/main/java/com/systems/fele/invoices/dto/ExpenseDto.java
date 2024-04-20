@@ -1,4 +1,4 @@
-package com.systems.fele.extractor.model;
+package com.systems.fele.invoices.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,7 +17,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public class Expense {
+public class ExpenseDto {
     private long id;
     
     private BigDecimal amount;
@@ -29,7 +29,7 @@ public class Expense {
     @JsonSerialize(using = InstallmentSerializer.class)
     private Installment installment;
 
-    public static Expense fromEntity(ExpenseEntity entity) {
-        return new Expense(entity.getId(), entity.getAmount(), entity.getDescription(), entity.getDate(), entity.getInstallment());
+    public static ExpenseDto fromEntity(ExpenseEntity entity) {
+        return new ExpenseDto(entity.getLocalId(), entity.getAmount(), entity.getDescription(), entity.getDate(), entity.getInstallment());
     }
 }

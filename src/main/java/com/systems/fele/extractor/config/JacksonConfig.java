@@ -4,8 +4,8 @@ import org.springframework.context.annotation.Bean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.systems.fele.extractor.model.Installment;
-import com.systems.fele.extractor.model.Installment.InstallmentSerializer;
+import com.systems.fele.invoices.entity.Installment;
+import com.systems.fele.invoices.entity.Installment.InstallmentSerializer;
 
 public class JacksonConfig {
      @Bean

@@ -34,4 +34,11 @@ public interface AppUserService {
      */
     boolean isEmailAvailable(String email);
 
+    /**
+     * Returns the requested user
+     * @param appUserId Id of the user
+     * @return The user
+     */
+    AppUser getUserById(long appUserId);
+
 }

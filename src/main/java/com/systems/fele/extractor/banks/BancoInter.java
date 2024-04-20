@@ -12,10 +12,10 @@ import java.util.Locale;
 
 import com.systems.fele.common.strings.Strings;
 import com.systems.fele.common.util.StringUtils;
-import com.systems.fele.extractor.entity.ExpenseEntity;
-import com.systems.fele.extractor.entity.InvoiceEntity;
 import com.systems.fele.extractor.exception.InvoiceFormatException;
-import com.systems.fele.extractor.model.Installment;
+import com.systems.fele.invoices.entity.ExpenseEntity;
+import com.systems.fele.invoices.entity.Installment;
+import com.systems.fele.invoices.entity.InvoiceEntity;
 
 public class BancoInter implements Extractor {
 
@@ -85,7 +85,12 @@ public class BancoInter implements Extractor {
         var numberFormat = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.forLanguageTag("pt-BR")));
         numberFormat.setParseBigDecimal(true);
         try {
-            return new ExpenseEntity(null, (BigDecimal) numberFormat.parse(amount), description, date, installment);
+            return ExpenseEntity.builder()
+                    .amount((BigDecimal) numberFormat.parse(amount))
+                    .description(description)
+                    .date(date)
+                    .installment(installment)
+                    .build();
         } catch (ParseException e) {
             throw new InvoiceFormatException("Could not parse amount: " + amount);
         }

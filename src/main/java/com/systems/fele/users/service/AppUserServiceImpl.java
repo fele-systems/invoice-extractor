@@ -125,5 +125,10 @@ public class AppUserServiceImpl implements AppUserService {
                 .getPrincipal()).getAppUser();
     }
 
+    @Override
+    public AppUser getUserById(long appUserId) {
+        return appUserRepository.findById(appUserId).get();
+    }
+
     
 }

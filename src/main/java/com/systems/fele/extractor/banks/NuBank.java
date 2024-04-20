@@ -11,11 +11,11 @@ import java.util.regex.Pattern;
 import com.systems.fele.common.strings.Strings;
 import com.systems.fele.common.time.Months;
 import com.systems.fele.common.util.Unchecked;
-import com.systems.fele.extractor.entity.ExpenseEntity;
-import com.systems.fele.extractor.entity.InvoiceEntity;
 import com.systems.fele.extractor.exception.BadInvoiceException;
 import com.systems.fele.extractor.exception.InvoiceFormatException;
-import com.systems.fele.extractor.model.Installment;
+import com.systems.fele.invoices.entity.ExpenseEntity;
+import com.systems.fele.invoices.entity.Installment;
+import com.systems.fele.invoices.entity.InvoiceEntity;
 
 public class NuBank implements Extractor {
 
@@ -96,8 +96,12 @@ public class NuBank implements Extractor {
                         description = description.take(-slices.length() - 2);
                     }
                 }
-
-                expenses.add(new ExpenseEntity(null, expenseValue, description.toString().trim(), expenseDate, installment));
+                expenses.add(ExpenseEntity.builder()
+                        .amount(expenseValue)
+                        .description(description.toString().trim())
+                        .date(expenseDate)
+                        .installment(installment)
+                        .build());
                 stream.mark();
                 currentExpense = stream.advanceAndGet();
             }

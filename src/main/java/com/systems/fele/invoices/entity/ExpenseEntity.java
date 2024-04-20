@@ -1,9 +1,7 @@
-package com.systems.fele.extractor.entity;
+package com.systems.fele.invoices.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
-import com.systems.fele.extractor.model.Installment;
 
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -12,7 +10,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,21 +20,20 @@ import lombok.NoArgsConstructor;
  * Represents a expense inside an invoice
  */
 @Data
-@AllArgsConstructor
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 @Entity
 public class ExpenseEntity {
-
-    public ExpenseEntity(InvoiceEntity tempInvoice, BigDecimal amount, String description, LocalDate date, Installment installment) {
-        this(null, tempInvoice, amount, description, date, installment);
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private long localId;
+
     @ManyToOne
-    @JoinColumn(name="expense_id")
+    @JoinColumn(name="invoice_id")
     private InvoiceEntity invoice;
 
     private BigDecimal amount;

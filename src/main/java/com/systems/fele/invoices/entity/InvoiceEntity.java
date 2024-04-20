@@ -1,4 +1,4 @@
-package com.systems.fele.extractor.entity;
+package com.systems.fele.invoices.entity;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;

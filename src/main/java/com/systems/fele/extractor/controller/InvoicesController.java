@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.systems.fele.extractor.entity.InvoiceEntity;
 import com.systems.fele.extractor.model.Expense;
 import com.systems.fele.extractor.model.Invoice;
 import com.systems.fele.extractor.model.ListInvoicesResponse;
-import com.systems.fele.extractor.repository.InvoiceRepository;
+import com.systems.fele.invoices.entity.InvoiceEntity;
+import com.systems.fele.invoices.repository.InvoiceRepository;
 import com.systems.fele.users.entity.AppUser;
 
 @RestController
