@@ -41,4 +41,11 @@ public interface AppUserService {
      */
     AppUser getUserById(long appUserId);
 
+    /**
+     * Returns the requested user
+     * @param appUserId Id of the user
+     * @return The user
+     */
+    AppUser getUserByEmail(String email);
+
 }

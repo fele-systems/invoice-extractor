@@ -130,5 +130,10 @@ public class AppUserServiceImpl implements AppUserService {
         return appUserRepository.findById(appUserId).get();
     }
 
+    @Override
+    public AppUser getUserByEmail(String email) {
+        return appUserRepository.findByEmail(email).get();
+    }
+
     
 }
