@@ -1,9 +1,9 @@
 package com.systems.fele.extractor.banks;
 
-import com.systems.fele.invoices.entity.InvoiceEntity;
+import com.systems.fele.invoices.dto.CreateInvoiceRequest;
 
 public interface Extractor {
-    InvoiceEntity extract(LineStream stream);
+    CreateInvoiceRequest extract(LineStream stream);
 
     boolean isExtractable(LineStream stream);
 }

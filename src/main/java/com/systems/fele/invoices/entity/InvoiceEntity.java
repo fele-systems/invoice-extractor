@@ -1,5 +1,6 @@
 package com.systems.fele.invoices.entity;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
@@ -36,6 +37,13 @@ public class InvoiceEntity {
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
     List<ExpenseEntity> expenses;
+
+    public BigDecimal getTotal() {
+        return expenses.stream()
+            .map(ExpenseEntity::getAmount)
+            .reduce(BigDecimal::add)
+            .orElse(BigDecimal.ZERO);
+    }
 
     public InvoiceEntity(LocalDate dueDate, List<ExpenseEntity> expenses) {
         this(null, dueDate, expenses);
