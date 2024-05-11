@@ -24,8 +24,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.systems.fele.invoices.controller.InvoiceController;
 import com.systems.fele.invoices.dto.CreateExpenseRequest;
 import com.systems.fele.invoices.dto.CreateInvoiceRequest;
+import com.systems.fele.invoices.dto.UpdateExpenseRequest;
 import com.systems.fele.invoices.entity.Installment;
 import com.systems.fele.invoices.entity.InvoiceEntity;
 import com.systems.fele.invoices.service.InvoiceService;
@@ -33,7 +35,7 @@ import com.systems.fele.invoices.service.InvoiceService;
 @AutoConfigureMockMvc
 @SpringBootTest
 @AutoConfigureTestDatabase
-public class TestInvoices {
+class TestInvoices {
     
     @Autowired
     InvoiceService invoiceService;
@@ -149,5 +151,21 @@ public class TestInvoices {
         assertThrows(NoSuchElementException.class, () -> {
             invoiceService.getInvoice(invoice.getId());
         });
+    }
+
+    @Test
+    void Change_existing_expense_with_no_update_parameters() {
+        var today = LocalDate.now();
+        var invoice = invoiceService.createInvoice(1l, new CreateInvoiceRequest(today, Arrays.asList(
+            new CreateExpenseRequest(new BigDecimal(10.00), "First Expense", today, Installment.NULL)
+        )));
+
+        var expense = invoice.getExpenses().get(0);
+
+        var updateExpense = new UpdateExpenseRequest(null, null, null, null);
+        var updatedExpense = invoiceService.updateExpense(invoice.getId(), expense.getLocalId(), updateExpense);
+
+        assertThat(updatedExpense, is(equalTo(expense)));
+
     }
 }
