@@ -8,12 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
-import com.systems.fele.common.util.StringUtils;
 import com.systems.fele.invoices.dto.CreateExpenseRequest;
 import com.systems.fele.invoices.dto.CreateInvoiceRequest;
 import com.systems.fele.invoices.dto.UpdateExpenseRequest;
 import com.systems.fele.invoices.entity.ExpenseEntity;
-import com.systems.fele.invoices.entity.Installment;
 import com.systems.fele.invoices.entity.InvoiceEntity;
 import com.systems.fele.invoices.repository.ExpenseRepository;
 import com.systems.fele.invoices.repository.InvoiceRepository;
@@ -47,7 +45,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         var invoiceEntity = new InvoiceEntity(appUser, invoiceRequest.getDueDate(), expenseEntities);
 
         invoiceEntity = invoiceRepository.save(invoiceEntity);
-
+        
         for (var expenseRequest : invoiceRequest.getExpenses()) {
             expenseEntities.add(ExpenseEntity.builder()
                     .localId(localIdCounter++)
@@ -84,7 +82,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         long nextLocalId = invoice.getExpenses().stream()
                 .sorted(Comparator.comparingLong(ExpenseEntity::getLocalId).reversed())
                 .findFirst()
-                .orElse(ExpenseEntity.builder().localId(1).build()).getLocalId() + 1;
+                .orElse(ExpenseEntity.builder().localId(0).build()).getLocalId() + 1;
                 
 
         var expense = ExpenseEntity.builder()
