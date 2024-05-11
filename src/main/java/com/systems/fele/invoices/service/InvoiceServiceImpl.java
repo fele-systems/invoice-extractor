@@ -44,7 +44,8 @@ public class InvoiceServiceImpl implements InvoiceService {
         long localIdCounter = 1;
         var invoiceEntity = new InvoiceEntity(appUser, invoiceRequest.getDueDate(), expenseEntities);
 
-        invoiceEntity = invoiceRepository.save(invoiceEntity);
+        if (appUser != null)
+            invoiceEntity = invoiceRepository.save(invoiceEntity);
         
         for (var expenseRequest : invoiceRequest.getExpenses()) {
             expenseEntities.add(ExpenseEntity.builder()
@@ -57,7 +58,8 @@ public class InvoiceServiceImpl implements InvoiceService {
                     .build());
         }
 
-        expenseRepository.saveAll(expenseEntities);
+        if (appUser != null)
+            expenseRepository.saveAll(expenseEntities);
 
         return invoiceEntity;
     }

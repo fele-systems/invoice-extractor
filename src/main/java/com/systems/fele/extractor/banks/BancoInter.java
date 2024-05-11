@@ -13,9 +13,9 @@ import java.util.Locale;
 import com.systems.fele.common.strings.Strings;
 import com.systems.fele.common.util.StringUtils;
 import com.systems.fele.extractor.exception.InvoiceFormatException;
-import com.systems.fele.invoices.entity.ExpenseEntity;
+import com.systems.fele.invoices.dto.CreateExpenseRequest;
+import com.systems.fele.invoices.dto.CreateInvoiceRequest;
 import com.systems.fele.invoices.entity.Installment;
-import com.systems.fele.invoices.entity.InvoiceEntity;
 
 public class BancoInter implements Extractor {
 
@@ -42,7 +42,7 @@ public class BancoInter implements Extractor {
         return LocalDate.of(year, month, day);
     }
 
-    private ExpenseEntity parseExpense(String expenseAsStr) {
+    private CreateExpenseRequest parseExpense(String expenseAsStr) {
         var date = parseExpenseDate(expenseAsStr);
 
         var amountIndex = expenseAsStr.lastIndexOf("R$");
@@ -85,24 +85,26 @@ public class BancoInter implements Extractor {
         var numberFormat = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.forLanguageTag("pt-BR")));
         numberFormat.setParseBigDecimal(true);
         try {
-            return ExpenseEntity.builder()
-                    .amount((BigDecimal) numberFormat.parse(amount))
-                    .description(description)
-                    .date(date)
-                    .installment(installment)
-                    .build();
+            return new CreateExpenseRequest(
+                    (BigDecimal) numberFormat.parse(amount),
+                    description,
+                    date,
+                    installment
+            );
         } catch (ParseException e) {
             throw new InvoiceFormatException("Could not parse amount: " + amount);
         }
     }
 
     @Override
-    public InvoiceEntity extract(LineStream stream) {
+    public CreateInvoiceRequest extract(LineStream stream) {
         if (!stream.find("VENCIMENTO")) {
             throw new InvoiceFormatException("Could not find due date");
         }
         var dueDate = stream.advanceAndGet();
-        var invoice = new InvoiceEntity(LocalDate.from(DateTimeFormatter.ofPattern("dd/MM/yyyy").parse(dueDate)), new ArrayList<>());
+        var invoice = new CreateInvoiceRequest(
+            LocalDate.from(DateTimeFormatter.ofPattern("dd/MM/yyyy").parse(dueDate)),
+            new ArrayList<>());
 
         if (!stream.find("Despesas da fatura")) {
             throw new InvoiceFormatException("Could not find expenses list");

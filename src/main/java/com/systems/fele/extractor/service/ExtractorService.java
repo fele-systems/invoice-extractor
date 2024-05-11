@@ -12,18 +12,21 @@ import com.systems.fele.extractor.banks.Extractor;
 import com.systems.fele.extractor.banks.InvoiceResource;
 import com.systems.fele.extractor.banks.NuBank;
 import com.systems.fele.extractor.exception.InvoiceFormatException;
+import com.systems.fele.invoices.dto.CreateInvoiceRequest;
 import com.systems.fele.invoices.entity.InvoiceEntity;
-import com.systems.fele.invoices.repository.InvoiceRepository;
+import com.systems.fele.invoices.service.InvoiceService;
 import com.systems.fele.users.entity.AppUser;
 
 @Service
 public class ExtractorService {
     Map<String, Extractor> availableExtractors;
 
-    @Autowired
-    private InvoiceRepository tempInvoiceRepository;
+    private InvoiceService invoiceService;
 
-    public ExtractorService() {
+    @Autowired
+    public ExtractorService(InvoiceService invoiceService) {
+        this.invoiceService = invoiceService;
+
         availableExtractors = Map.of(
                 "BANCO INTER", new BancoInter(),
                 "NU BANK", new NuBank());
@@ -36,7 +39,7 @@ public class ExtractorService {
     public InvoiceEntity extract(InvoiceResource resource, AppUser appUser) {
         var lineStream = resource.loadAsLineStream();
 
-        InvoiceEntity invoice = null;
+        CreateInvoiceRequest invoice = null;
         for (var entry : availableExtractors.entrySet()) {
             var extractor = entry.getValue();
             if (extractor.isExtractable(lineStream)) {
@@ -50,25 +53,14 @@ public class ExtractorService {
             throw new InvoiceFormatException("Unreconized format");
         }
 
-        // create and save the invoice entity
-        invoice.setAppUser(appUser);
-
-        for (var expense : invoice.getExpenses())
-            expense.setInvoice(invoice);
-
-        return tempInvoiceRepository.save(invoice);
+        return invoiceService.createInvoice(appUser, invoice);
     }
 
     public InvoiceEntity extractWithHint(InvoiceResource resource, String bankHint, AppUser appUser) {
         var invoice = availableExtractors.get(bankHint).extract(resource.loadAsLineStream());
 
-        // create and save the invoice entity
-        invoice.setAppUser(appUser);
 
-        for (var expense : invoice.getExpenses())
-            expense.setInvoice(invoice);
-
-        return tempInvoiceRepository.save(invoice);
+        return invoiceService.createInvoice(appUser, invoice);
     }
 
 }
