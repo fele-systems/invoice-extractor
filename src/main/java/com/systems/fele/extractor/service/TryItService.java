@@ -60,7 +60,7 @@ public class TryItService {
                 .append(",\"")
                 .append(e.getAmount())
                 .append("\",\"")
-                .append(e.getDescription())
+                .append(quotesProtecc(e.getDescription()))
                 .append("\",")
                 .append(e.getDate())
                 .append(',')
@@ -81,7 +81,7 @@ public class TryItService {
 
         while (!i.sliceEOFAsIndex().isEOF()) {
             sb.append(i);
-            sb.append('\\'); // quote the string
+            sb.append('"'); // escape de quote
             i = i.skip(i.length())
                 .take(1)
                 .takeWhile(ch -> ch != '"');
