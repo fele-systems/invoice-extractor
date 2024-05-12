@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Service;
 
+import com.systems.fele.common.strings.Strings;
 import com.systems.fele.invoices.dto.ShortInvoiceDto;
 import com.systems.fele.invoices.entity.InvoiceEntity;
 
@@ -69,5 +70,23 @@ public class TryItService {
                 .append('\n');
         }
         return sb.toString();
+    }
+
+    public static String quotesProtecc(String quotedString) {
+        var sb = new StringBuilder();
+
+        var i = Strings.begin(quotedString)
+            .slice()
+            .takeWhile(ch -> ch != '"');
+
+        while (!i.sliceEOFAsIndex().isEOF()) {
+            sb.append(i);
+            sb.append('\\'); // quote the string
+            i = i.skip(i.length())
+                .take(1)
+                .takeWhile(ch -> ch != '"');
+        }
+
+        return sb.append(i).toString();
     }
 }
