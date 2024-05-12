@@ -57,6 +57,7 @@ public class SecurityConfig {
         authorize.requestMatchers(HttpMethod.POST, "/rest/api/users/register").hasAuthority("ADMIN")
             .requestMatchers(HttpMethod.DELETE, "/rest/api/users/remove/*").hasAuthority("ADMIN")
             .requestMatchers("error").anonymous()
+            .requestMatchers("preview").anonymous()
             .requestMatchers("tryit/**").anonymous()
             .anyRequest().authenticated();
     }
