@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -42,21 +43,24 @@ public class NuBank implements Extractor {
 
         var dueDate = LocalDate.of(year, month, day);
 
-        var startOfExpenses = Pattern.compile("^TRANSAÇÕES DE \\d\\d \\w{3} A \\d\\d \\w{3} VALORES EM R\\$$");
+        var startOfExpenses = Pattern.compile("^TRANSAÇÕES DE \\d\\d \\w{3} A \\d\\d \\w{3} VALORES EM R\\$$", Pattern.CANON_EQ);
         var installmentFormat = Pattern.compile("^- \\d+/\\d+$");
         var isExpenseFormat = Pattern.compile("^\\d\\d \\w{3} .*\\d+,\\d\\d$");
-        var realFormat = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.forLanguageTag("pt-BR")));
+        var realFormat = new DecimalFormat("#,#.##", new DecimalFormatSymbols(Locale.forLanguageTag("pt-BR")));
         realFormat.setParseBigDecimal(true);
         var expenses = new ArrayList<CreateExpenseRequest>();
         
         while (stream.find(line -> startOfExpenses.matcher(line).matches())) {
             String currentExpense = stream.advanceAndGet();
-
+            
             while (isExpenseFormat.matcher(currentExpense).matches()) {
+                // The first two chars are the day
                 var slices = Strings.begin(currentExpense)
                         .slice().take(2);
                 var expenseDay = slices.toInt();
 
+                // Skip a space and take the next three characters that
+                // contain the month
                 slices = slices.sliceEOFAsIndex()
                         .skip(1)
                         .slice().take(3);
@@ -64,23 +68,33 @@ public class NuBank implements Extractor {
 
                 var expenseDate = LocalDate.of(year, expenseMonth, expenseDay);
 
+                // After parsing the date, the next field is the description
+                // but to get the end of the description, we need to parse it
+                // backwards. So here we just save the begining
                 var descriptionBegin = slices.sliceEOFAsIndex();
 
                 // Start from the end to get amount and, optionally, installments
+                // To parse amount, just collect chars until a space
                 slices = Strings.rbegin(currentExpense)
                         .slice().takeWhile(ch -> ch != ' ');
 
                 var expenseValue = (BigDecimal) slices.rev().map(Unchecked.function(realFormat::parse));
 
+                // To find the end of description, just get the rest of the
+                // slice and remove the last chars by the number of chars
+                // extracted of amount
                 Slice description = descriptionBegin.sliceToEOF()
                         .take(-slices.length());
 
+                // slices here hold the amount. Keep reading it backwards
+                // until we find a dash, which could mean this expense was purchased in installments
                 slices = slices.sliceEOFAsIndex()
                         .skip(1)
                         .slice().takeWhile(ch -> ch != '-').take(1);
 
                 Installment installment = Installment.NULL;
 
+                // Test if the dash really means a installment or just part of the description
                 if (installmentFormat.matcher(slices.rev().toString()).matches()) {
                     // Why matches twice !?!?
                     if (slices.sliceEOF() != slices.begin().EOF() && installmentFormat.matcher(slices.rev().toString()).matches() ) {
@@ -112,9 +126,8 @@ public class NuBank implements Extractor {
         }
 
         if (stream.eof()) stream.rollback();
-        System.out.println("Unmatched line: " + stream.getLine());
 
-        return new CreateInvoiceRequest(LocalDate.from(dueDate), expenses);
+        return new CreateInvoiceRequest(LocalDate.from(dueDate), tidyExpenses(expenses));
     }
 
     @Override
@@ -122,5 +135,32 @@ public class NuBank implements Extractor {
         stream.skip(6);
         return stream.getAndAdvance().startsWith("Olá, ") &&
             stream.getLine().equals("Esta é a sua fatura de");
-    }    
+    }
+
+    /**
+     * Removes previous invoices payments and detect expenses that are
+     * credit.
+     * @param expenses List of expenses
+     * @return tidied expenses
+     */
+    private List<CreateExpenseRequest> tidyExpenses(List<CreateExpenseRequest> expenses) {
+        var tidy = new ArrayList<CreateExpenseRequest>();
+        for (var ex : expenses) {
+            if (ex.getDescription().startsWith("Pagamento em ")) continue;
+
+            if (ex.getDescription().startsWith("Desconto Antecipação ")
+                    || ex.getDescription().startsWith("Estorno de")
+                ) {
+                tidy.add(new CreateExpenseRequest(
+                        ex.getAmount().negate(),
+                        ex.getDescription(),
+                        ex.getDate(),
+                        ex.getInstallment()
+                ));
+            } else {
+                tidy.add(ex);
+            }
+        }
+        return tidy;
+    }
 }
