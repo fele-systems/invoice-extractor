@@ -12,6 +12,7 @@ public class Months {
             case "jan" -> Month.JANUARY;
             case "fev" -> Month.FEBRUARY;
             case "mar" -> Month.MARCH;
+            case "abr" -> Month.APRIL;
             case "mai" -> Month.MAY;
             case "jun" -> Month.JUNE;
             case "jul" -> Month.JULY;

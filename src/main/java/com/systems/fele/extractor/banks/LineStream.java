@@ -1,6 +1,7 @@
 package com.systems.fele.extractor.banks;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class LineStream {
@@ -34,6 +35,14 @@ public class LineStream {
         skip(1);
         return line;
     }
+
+    public Optional<String> peekNext(int n) {
+        int next = currentLine + n;
+        if (next < lines.size())
+            return Optional.of(lines.get(next));
+        else
+            return Optional.empty();
+    }   
 
     public String getLine() {
         return lines.get(currentLine);
