@@ -1,0 +1,533 @@
+{
+	"info": {
+		"_postman_id": "8d2a7cb4-e20f-4584-9ad8-74a29ff74bed",
+		"name": "Invoices",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38190244"
+	},
+	"item": [
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "register",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"fele@local\",\n  \"firstName\": \"fele\",\n  \"lastName\": \"systems\",\n  \"password\": \"notbad\",\n  \"admin\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{invoices-server-base-url}}/rest/api/users/register",
+							"host": [
+								"{{invoices-server-base-url}}"
+							],
+							"path": [
+								"rest",
+								"api",
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"//firstName\": \"Felezinho\",\n  \"admin\": true,\n  \"//password\": \"notbad\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{invoices-server-base-url}}/rest/api/users/2",
+							"host": [
+								"{{invoices-server-base-url}}"
+							],
+							"path": [
+								"rest",
+								"api",
+								"users",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{invoices-server-base-url}}/rest/api/users",
+							"host": [
+								"{{invoices-server-base-url}}"
+							],
+							"path": [
+								"rest",
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{invoices-server-base-url}}/rest/api/users/me",
+							"host": [
+								"{{invoices-server-base-url}}"
+							],
+							"path": [
+								"rest",
+								"api",
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "remove",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{invoices-server-base-url}}/rest/api/users/remove/2",
+							"host": [
+								"{{invoices-server-base-url}}"
+							],
+							"path": [
+								"rest",
+								"api",
+								"users",
+								"remove",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "invoices",
+			"item": [
+				{
+					"name": "create empty invoice",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dueDate\": \"2024-03-26\",\n  \"expenses\": []\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{invoices-server-base-url}}/rest/api/invoices",
+							"host": [
+								"{{invoices-server-base-url}}"
+							],
+							"path": [
+								"rest",
+								"api",
+								"invoices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create invoice",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dueDate\": \"2024-03-26\",\n  \"expenses\": [\n    {\n      \"amount\": 13.5,\n      \"date\": \"2024-03-01\",\n      \"description\": \"Laudantium impedit iste velit.\"\n    },\n    {\n      \"amount\": 55.5,\n      \"date\": \"2024-03-02\",\n      \"description\": \"Quos quia qui blanditiis aliquam id corporis.\"\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{invoices-server-base-url}}/rest/api/invoices",
+							"host": [
+								"{{invoices-server-base-url}}"
+							],
+							"path": [
+								"rest",
+								"api",
+								"invoices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add expense to invoice",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount\": 13.5,\n  \"date\": \"2024-03-05\",\n  \"description\": \"Non enim in saepe odit quo ab.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{invoices-server-base-url}}/rest/api/invoices/1/expenses",
+							"host": [
+								"{{invoices-server-base-url}}"
+							],
+							"path": [
+								"rest",
+								"api",
+								"invoices",
+								"1",
+								"expenses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list invoices",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{invoices-server-base-url}}/rest/api/invoices",
+							"host": [
+								"{{invoices-server-base-url}}"
+							],
+							"path": [
+								"rest",
+								"api",
+								"invoices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get a invoice",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{invoices-server-base-url}}/rest/api/invoices/1",
+							"host": [
+								"{{invoices-server-base-url}}"
+							],
+							"path": [
+								"rest",
+								"api",
+								"invoices",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get a expense",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{invoices-server-base-url}}/rest/api/invoices/1/expenses/3",
+							"host": [
+								"{{invoices-server-base-url}}"
+							],
+							"path": [
+								"rest",
+								"api",
+								"invoices",
+								"1",
+								"expenses",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update a expense",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount\": 24.00,\n  \"//description\": \"Laudantium impedit iste velit.\",\n  \"//date\": \"2024-01-01\",\n  \"//installment\": \"0/0\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{invoices-server-base-url}}/rest/api/invoices/1/expenses/3",
+							"host": [
+								"{{invoices-server-base-url}}"
+							],
+							"path": [
+								"rest",
+								"api",
+								"invoices",
+								"1",
+								"expenses",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete a expense",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{invoices-server-base-url}}/rest/api/invoices/1/expenses/2",
+							"host": [
+								"{{invoices-server-base-url}}"
+							],
+							"path": [
+								"rest",
+								"api",
+								"invoices",
+								"1",
+								"expenses",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
