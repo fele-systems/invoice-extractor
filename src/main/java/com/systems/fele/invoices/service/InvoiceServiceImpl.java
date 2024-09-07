@@ -73,7 +73,11 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     @NonNull
     public InvoiceEntity getInvoice(long invoiceId) {
-        return invoiceRepository.findById(invoiceId).orElseThrow();
+        var invoiceOpt = invoiceRepository.findById(invoiceId);
+        
+        invoiceOpt.ifPresent(invoice -> invoice.getExpenses().sort(Comparator.comparing(ExpenseEntity::getLocalId)));
+
+        return invoiceOpt.orElseThrow();
     }
 
     @SuppressWarnings("null")
