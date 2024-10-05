@@ -14,34 +14,32 @@
 
     <div class="p-5 mb-2 bg-body-secondary">
 
-        <div class="rounded-top border bg-primary mb-2" th:each="invoice, stat : ${invoices}">
-            <p class="text-center text-primary-emphasis">Invoice of <span th:text="${invoice.dueDate}"></span></p>
-
-            <div th:object="${invoice}" class="bg-secondary-subtle">
-                <p><span th:text="*{dueDate}"></span>'s invoice</p>
-                <table class="table">
-                    <tr>
-                        <th>Expense</th>
-                        <th>Date</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Installment</th>
-                        <th>Delete</th>
+        <div class="rounded-top border bg-primary mb-2">
+            <p class="text-center text-primary-emphasis">Your invoices</p>            
+            <table class="table">
+                <tr>
+                    <th>Id</th>
+                    <th>Due Date</th>
+                    <th>Num Expenses</th>
+                    <th>Total</th>
+                    <th>View</th>
+                    <th>Delete</th>
+                </tr>
+                <tbody>
+                    <tr th:each="invoiceSumary, stat : ${invoiceSummaries}">
+                        <td th:text="${invoiceSumary.id}"></td>
+                        <td th:text="${invoiceSumary.dueDate}"></td>
+                        <td th:text="${invoiceSumary.numberOfExpenses}"></td>
+                        <td th:text="${invoiceSumary.total}"></td>
+                        <td>
+                            <button type="submit" th:onclick="deleteExpense([[${invoiceSumary.id}]], this.parentElement.parentElement)" >View</button>
+                        </td>
+                        <td>
+                            <button type="submit" th:onclick="deleteExpense([[${invoiceSumary.id}]], this.parentElement.parentElement)" >Delete</button>
+                        </td>
                     </tr>
-                    <tbody>
-                        <tr th:each="expense, stat : ${invoice.expenses}">
-                            <td th:text="${expense.localId}"></td>
-                            <td th:text="${expense.date}"></td>
-                            <td th:text="${expense.description}"></td>
-                            <td th:text="${expense.amount}"></td>
-                            <td th:text="${expense.installment}"></td>
-                            <td>
-                                <button type="submit" th:onclick="deleteExpense([[${invoice.id}]], [[${expense.localId}]], this.parentElement.parentElement)" >Delete</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                </tbody>
+            </table>
         </div>
 
     </div>

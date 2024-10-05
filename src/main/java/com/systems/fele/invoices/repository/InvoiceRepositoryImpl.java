@@ -1,6 +1,8 @@
 package com.systems.fele.invoices.repository;
 
 import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,10 +10,14 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
+import com.systems.fele.invoices.dto.ShortInvoiceDto;
 import com.systems.fele.invoices.entity.InvoiceEntity;
 
 @Repository
@@ -68,6 +74,34 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
     @Override
     public void delete(long invoiceId) {
         jdbcTemplate.update("DELETE FROM invoices.invoice WHERE id = ?", invoiceId);
+    }
+
+    @Override
+    public List<ShortInvoiceDto> getShortInvoicesForUserId(long appUserId) {
+        var rowMapper = new RowMapper<ShortInvoiceDto>() {
+            @Override @Nullable
+            public ShortInvoiceDto mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
+                return new ShortInvoiceDto(
+                    rs.getLong("id"),
+                    rs.getDate("due_date").toLocalDate(),
+                    rs.getInt("count"),
+                    rs.getBigDecimal("sum")
+                );
+            }
+        };
+
+        return jdbcTemplate.query(
+            """
+            SELECT inv.id, inv.due_date, count(exp.local_id), sum(exp.amount)
+            FROM invoices.invoice inv
+                LEFT JOIN invoices.expense exp
+                ON inv.id = exp.invoice_id
+            WHERE inv.appuser_id = ?
+            GROUP BY inv.id
+            """,
+            rowMapper,
+            appUserId
+        );
     }
     
 }

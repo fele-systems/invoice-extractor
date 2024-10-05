@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.systems.fele.invoices.dto.CreateExpenseRequest;
 import com.systems.fele.invoices.dto.CreateInvoiceRequest;
+import com.systems.fele.invoices.dto.ShortInvoiceDto;
 import com.systems.fele.invoices.dto.UpdateExpenseRequest;
 import com.systems.fele.invoices.entity.ExpenseEntity;
 import com.systems.fele.invoices.entity.InvoiceEntity;
@@ -140,6 +141,11 @@ public class InvoiceServiceImpl implements InvoiceService {
         var expense = getExpense(invoiceId, localExpenseId);
         expenseRepository.delete(expense.getId());
         return expense;
+    }
+
+    @Override
+    public List<ShortInvoiceDto> getShortInvoicesForUserId(long appUserId) {
+        return invoiceRepository.getShortInvoicesForUserId(appUserId);
     }
     
 }

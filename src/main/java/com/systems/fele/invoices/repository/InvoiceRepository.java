@@ -3,6 +3,7 @@ package com.systems.fele.invoices.repository;
 import java.util.List;
 import java.util.Optional;
 
+import com.systems.fele.invoices.dto.ShortInvoiceDto;
 import com.systems.fele.invoices.entity.InvoiceEntity;
 
 public interface InvoiceRepository {
@@ -15,4 +16,5 @@ public interface InvoiceRepository {
 
     void delete(long invoiceId);
 
+    List<ShortInvoiceDto> getShortInvoicesForUserId(long appUserId);
 }

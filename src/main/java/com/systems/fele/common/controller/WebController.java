@@ -133,8 +133,7 @@ public class WebController {
             }
         }
 
-        model.addAttribute("invoices", invoiceService.listInvoices(user.get().getId()));
-
+        model.addAttribute("invoiceSummaries", invoiceService.getShortInvoicesForUserId(user.get().getId()));
 
         return "invoices";
     }
