@@ -15,30 +15,59 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 
+import javax.sql.DataSource;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
-import com.systems.fele.invoices.controller.InvoiceController;
 import com.systems.fele.invoices.dto.CreateExpenseRequest;
 import com.systems.fele.invoices.dto.CreateInvoiceRequest;
 import com.systems.fele.invoices.dto.UpdateExpenseRequest;
 import com.systems.fele.invoices.entity.Installment;
 import com.systems.fele.invoices.entity.InvoiceEntity;
 import com.systems.fele.invoices.service.InvoiceService;
+import com.systems.fele.users.dto.UserRegisterRequest;
+import com.systems.fele.users.service.AppUserService;
+
 
 @AutoConfigureMockMvc
 @SpringBootTest
-@AutoConfigureTestDatabase
+@Import(DatabaseTestConfig.class)
+@ActiveProfiles("test")
+@TestInstance(Lifecycle.PER_CLASS)
 class TestInvoices {
     
     @Autowired
     InvoiceService invoiceService;
+
+    @Autowired
+    AppUserService appUserService;
+
+    @Autowired
+    @Qualifier("h2DataSource")
+    DataSource dataSource;
+
+    @BeforeAll
+    void setupBeforeAll() {
+        appUserService.registerUser(new UserRegisterRequest(
+            "Toshino",
+            "Kyouko",
+            "tonisho.kyouko@weebmail.com",
+            "bbbb",
+            false
+        ));
+    }
 
     Matcher<Collection<InvoiceEntity>> hasInvoiceWithId(long id) {
         return new TypeSafeMatcher<Collection<InvoiceEntity>>() {
@@ -50,7 +79,7 @@ class TestInvoices {
 
             @Override
             protected boolean matchesSafely(Collection<InvoiceEntity> item) {
-                return item.stream().filter(i -> i.getId().equals(id)).findFirst().isPresent();
+                return item.stream().filter(i -> i.getId() == id).findFirst().isPresent();
             }
             
         };
@@ -66,18 +95,18 @@ class TestInvoices {
         
         assertThat(invoice.getDueDate(), is(equalTo(today)));
         assertThat(invoice.getExpenses(), hasSize(1));
-        assertThat(invoice.getAppUser().getId(), is(equalTo(1l)));
+        assertThat(invoice.getAppUserId(), is(equalTo(1l)));
 
         var expense = invoice.getExpenses().get(0);
 
-        assertEquals(expense.getAmount(), new BigDecimal(10.50));
-        assertEquals(expense.getDescription(), "First Expense");
-        assertEquals(expense.getDate(), today);
-        assertEquals(expense.getInstallment(), Installment.NULL);
+        assertEquals(new BigDecimal(10.50), expense.getAmount());
+        assertEquals("First Expense", expense.getDescription());
+        assertEquals(today, expense.getDate());
+        assertEquals(Installment.NULL, expense.getInstallment());
 
         var invoicesForUser = invoiceService.listInvoices(1l);
-
-        assertTrue(invoicesForUser.stream().filter(i -> i.getId().equals(invoice.getId())).findFirst().isPresent());
+        
+        assertTrue(invoicesForUser.stream().filter(i -> i.getId() == invoice.getId()).findFirst().isPresent());
         assertThat(invoicesForUser, hasInvoiceWithId(invoice.getId()));
     }
 

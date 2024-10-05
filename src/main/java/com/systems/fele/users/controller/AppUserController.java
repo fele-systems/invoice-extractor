@@ -26,6 +26,9 @@ import com.systems.fele.users.dto.UserUpdateRequest;
 import com.systems.fele.users.repository.AppUserRepository;
 import com.systems.fele.users.service.AppUserService;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 @RestController
 @RequestMapping("/rest/api/users")
 public class AppUserController {
@@ -46,11 +49,6 @@ public class AppUserController {
         var appUser = appUserService.registerUser(userDto);
 
         return UserDto.fromAppUser(appUser);
-    }
-
-    @GetMapping(path = "/me", produces = { MediaType.APPLICATION_JSON_VALUE })
-    UserDto getMe() {
-        return UserDto.fromAppUser(appUserService.loggedInUser());
     }
 
     @GetMapping(path = {"", "/" }, produces = { MediaType.APPLICATION_JSON_VALUE })
@@ -80,6 +78,7 @@ public class AppUserController {
 
     @ExceptionHandler({ Exception.class })
     public ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
+        log.error("Something went wrong", ex);
         ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage(), "error occurred");
         return new ResponseEntity<>(apiError, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }

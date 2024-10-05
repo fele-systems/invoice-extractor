@@ -4,7 +4,6 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -17,11 +16,9 @@ import com.systems.fele.users.service.AppUserService;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
-
-@AutoConfigureTestDatabase
 @DirtiesContext
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class InvoicesIntegrationTest {
+class InvoicesIntegrationTest {
     @LocalServerPort
     int port;
 
@@ -35,7 +32,7 @@ public class InvoicesIntegrationTest {
 
     static final String TEST_USER_USERNAME = "tonisho.kyouko@weebmail.com";
     static final String TEST_USER_PASSWORD = "aStringPassword";
-
+    
     @Test
     void User_should_see_invoices_after_adding() {
 
@@ -54,6 +51,7 @@ public class InvoicesIntegrationTest {
             .when()
             .post("/rest/api/users/register")
             .then()
+            .log().all()
             .statusCode(200)
             .extract() 
             .as(UserDto.class);
@@ -67,9 +65,9 @@ public class InvoicesIntegrationTest {
         authedReqSpec.when()
             .get("/rest/api/invoices")
             .then()
+            .log().all()
             .statusCode(200)
             .body("$", Matchers.hasSize(0));
-
         
         authedReqSpec.with().body("""
                 { "dueDate": "2020-01-05", "expenses": [] }

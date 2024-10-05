@@ -8,34 +8,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
-import com.systems.fele.users.entity.AppUser;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Entity
 @NoArgsConstructor
+@AllArgsConstructor
 public class InvoiceEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
-    @ManyToOne
-    @JoinColumn(name = "appuser_id")
-    AppUser appUser;
+    long appUserId;
 
     LocalDate dueDate;
 
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
     List<ExpenseEntity> expenses;
 
     public BigDecimal getTotal() {
@@ -46,11 +32,11 @@ public class InvoiceEntity {
     }
 
     public InvoiceEntity(LocalDate dueDate, List<ExpenseEntity> expenses) {
-        this(null, dueDate, expenses);
+        this(0, dueDate, expenses);
     }
 
-    public InvoiceEntity(AppUser appUser, LocalDate dueDate, List<ExpenseEntity> expenses) {
-        this.appUser = appUser;
+    public InvoiceEntity(long appUserId, LocalDate dueDate, List<ExpenseEntity> expenses) {
+        this.appUserId = appUserId;
         this.dueDate = dueDate;
         this.expenses = expenses;
     }

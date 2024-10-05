@@ -12,8 +12,12 @@ import com.systems.fele.users.security.AppUserPrincipal;
 @Service
 public class AppUserDetailsService implements UserDetailsService {
 
-    @Autowired
     private AppUserRepository appUserRepository;
+
+    @Autowired
+    public AppUserDetailsService(AppUserRepository appUserRepository) {
+        this.appUserRepository = appUserRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

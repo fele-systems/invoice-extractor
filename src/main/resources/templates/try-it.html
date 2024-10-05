@@ -3,69 +3,188 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Try it! Invoice Extrator</title>
+    <title>Extract document</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
 </head>
 
 <body>
-    <h1>Use this page to try invoice extraction.</h1>
-    <p>
-        No account needed. Just upload a file and we'll give you
-        the extracted data so you can export it to CSV.
-    </p>
+    <div th:replace="~{fragments/navigation.html}" />
 
-    <div>
-        <p>Your extracted invoices: </p>
-        <ol>
-            <li th:each="inv, stat : ${invoices}">
-                Invoice of <span th:text="${inv.dueDate}"></span>. Total: <span th:text="${inv.total}"></span>.
-                <a th:href="@{/tryit/load/{id}(id=${stat.count})}">Load</a>
-                <a href="/tryit/remove">Remove</a>
-                <a th:href="@{/tryit/download/{id}(id=${stat.count})}">Download csv</a>
-            </li>
-        </ol>
-    </div>
-    
-    
-    <form th:action="@{/tryit/extract}" method="post" enctype="multipart/form-data">
-        <p th:text="${message}" th:if="${message ne null}" class="alert alert-primary"></p>
-        <div>
-            <label for="password">Password: </label>
-            <input name="password" type="password">
+    <div class="p-5 mb-2 bg-body-secondary">
+
+        <h1>Use this page to try invoice extraction.</h1>
+        <p>
+            No account needed. Just upload a file and we'll give you
+            the extracted data so you can export it to CSV.
+        </p>
+
+        <!-- Modal -->
+        <div class="modal fade" id="operationResult" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+            aria-labelledby="operationResultLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="operationResultLabel">Modal title</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        ...
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">OK</button>
+                        <button type="button" class="btn btn-primary">Go to your invoice</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
+
         <div>
-            <label for="document">Document: </label>
-            <input name="document" type="file">
+            <div class="rounded-top border bg-primary mb-2">
+                <p class="text-center text-primary-emphasis">Your extracted invoices</p>
+
+                <table class="table bg-secondary-subtle table-hover">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Due Date</th>
+                            <th>Number of Expenses</th>
+                            <th>Total</th>
+                            <th colspan="4" class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        <tr th:each="invoice : ${invoices}">
+                            <td th:text="${invoice.id+1}"></td>
+                            <td th:text="${invoice.dueDate}"></td>
+                            <td th:text="${invoice.numberOfExpenses}"></td>
+                            <td th:text="${invoice.total}"></td>
+                            <td>
+                                <button th:disabled="${user == null}" class="btn btn-outline-success btn-sm"
+                                    type="submit" th:onclick="saveTempInvoice(this, [[${invoice.id+1}]]);">
+                                    <span>Save</span>
+                                    <!-- <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                                <span role="status">Saving...</span> -->
+                                </button>
+                            </td>
+                            <td>
+                                <a class="btn btn-outline-secondary btn-sm"
+                                    th:href="@{/tryit/load/{id}(id=${invoice.id+1})}">Load</a>
+                            </td>
+                            <td>
+                                <a class="btn btn-outline-secondary btn-sm"
+                                    th:href="@{/tryit/download/{id}(id=${invoice.id+1})}">Download CSV</a>
+                            </td>
+                            <td>
+                                <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+            </div>
+            <ol>
+                <li th:each="inv, stat : ${invoices}">
+                    Invoice of <span th:text="${inv.dueDate}"></span>. Total: <span th:text="${inv.total}"></span>.
+                    <a th:href="@{/tryit/load/{id}(id=${stat.count})}">Load</a>
+                    <a href="/tryit/remove">Remove</a>
+                    <a th:href="@{/tryit/download/{id}(id=${stat.count})}">Download csv</a>
+                </li>
+            </ol>
         </div>
 
-        <input type="submit" value="Submit">
-    </form>
 
-    <div th:if="${invoice ne null}">
-        <p><span th:text="${invoiceMonth}"></span>'s invoice</p>
-        <table class="table">
-            <caption>Extracted data</caption>
-            <tr>
-                <th>Expense</th>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Amount</th>
-                <th>Installment</th>
-            </tr>
-            <tbody>
-                <tr th:each="expense, stat : ${invoice.expenses}">
-                    <td th:text="${expense.localId}"></td>
-                    <td th:text="${expense.date}"></td>
-                    <td th:text="${expense.description}"></td>
-                    <td th:text="${expense.amount}"></td>
-                    <td th:text="${expense.installment}"></td>
+        <form th:action="@{/tryit/extract}" method="post" enctype="multipart/form-data">
+            <p th:text="${message}" th:if="${message ne null}" class="alert alert-primary"></p>
+            <div>
+                <label for="password">Password: </label>
+                <input name="password" type="password">
+            </div>
+
+            <div>
+                <label for="document">Document: </label>
+                <input name="document" type="file">
+            </div>
+
+            <input type="submit" value="Submit">
+        </form>
+
+        <div th:if="${invoice ne null}">
+            <p><span th:text="${invoiceMonth}"></span>'s invoice</p>
+            <table class="table">
+                <caption>Extracted data</caption>
+                <tr>
+                    <th>Expense</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Installment</th>
                 </tr>
-            </tbody>
-        </table>
+                <tbody>
+                    <tr th:each="expense, stat : ${invoice.expenses}">
+                        <td th:text="${expense.localId}"></td>
+                        <td th:text="${expense.date}"></td>
+                        <td th:text="${expense.description}"></td>
+                        <td th:text="${expense.amount}"></td>
+                        <td th:text="${expense.installment}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
+    <script>
+        function saveTempInvoice(button, tempInvoiceId) {
+            button.disabled = true;
+            button.firstElementChild.style['display'] = 'none';
+
+            var spin = document.createElement('span');
+            spin.classList.add("spinner-border", "spinner-border-sm");
+            spin.setAttribute('aria-hidden', 'true');
+
+            button.appendChild(spin);
+
+            var label = document.createElement('span');
+            label.setAttribute('role', 'status');
+            label.innerText = 'Saving...';
+
+            label = button.appendChild(label);
+
+            const resetButton = () => {
+                button.disabled = false;
+                button.firstElementChild.style['display'] = '';
+                button.removeChild(label);
+                button.removeChild(spin);
+            };
+
+            fetch(`/tryit/save/${tempInvoiceId}`, {
+                method: 'POST'
+            })
+            .then(response => {
+                response.text().then(text => {
+                    $('#operationResult').modal('show')
+                    $('#operationResult').find('.modal-body').text(text);
+                });
+                resetButton();
+            })
+            .catch(error => {
+                resetButton();
+                console.error('Error:', error);
+            });
+        }
+    </script>
 
 </body>
 

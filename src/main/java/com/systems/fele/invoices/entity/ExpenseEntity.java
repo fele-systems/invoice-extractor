@@ -5,12 +5,6 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,19 +19,14 @@ import lombok.ToString;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
-@Entity
-@ToString(exclude = {"invoice"})
+@ToString(exclude = {"invoiceId"})
 public class ExpenseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     private long localId;
 
-    @ManyToOne
-    @JoinColumn(name="invoice_id")
-    private InvoiceEntity invoice;
+    private long invoiceId;
 
     private BigDecimal amount;
 

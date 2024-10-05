@@ -46,8 +46,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSec) throws Exception {
         httpSec.csrf(csrf -> csrf.disable())
                 .httpBasic(configurer -> configurer.authenticationEntryPoint(authenticationEntryPoint))
+                // .anonymous(anon -> anon.disable())
                 .authorizeHttpRequests(this::configureAuthorizeHttpRequests)
                 .exceptionHandling(this::configureExceptionHandling);
+                
         
         return httpSec.build();
     }
@@ -56,9 +58,9 @@ public class SecurityConfig {
         // TODO: Setup which endpoints should be open and for which roles
         authorize.requestMatchers(HttpMethod.POST, "/rest/api/users/register").hasAuthority("ADMIN")
             .requestMatchers(HttpMethod.DELETE, "/rest/api/users/remove/*").hasAuthority("ADMIN")
-            .requestMatchers("error").anonymous()
-            .requestMatchers("preview").anonymous()
-            .requestMatchers("tryit/**").anonymous()
+            .requestMatchers("/error").permitAll()
+            .requestMatchers("preview").permitAll()
+            .requestMatchers("tryit/**", "login/**", "index/**").permitAll()
             .anyRequest().authenticated();
     }
 
@@ -75,15 +77,10 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authProvider() {
-    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-    authProvider.setUserDetailsService(appUserDetailsService);
-    authProvider.setPasswordEncoder(passwordEncoder());
-    return authProvider;
-}
-
-    @Bean
-    AppUserDetailsService userDetailsService() {
-        return appUserDetailsService;
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(appUserDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
     }
 
     @Bean
@@ -92,7 +89,7 @@ public class SecurityConfig {
             @Override
             public void handle(HttpServletRequest request, HttpServletResponse response,
                     AccessDeniedException accessDeniedException) throws IOException, ServletException {
-                response.getWriter().println(accessDeniedException.getMessage());
+                accessDeniedException.printStackTrace(response.getWriter());
                 response.setStatus(HttpStatus.FORBIDDEN.value());
             }
         };

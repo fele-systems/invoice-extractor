@@ -1,8 +1,8 @@
 package com.systems.fele.invoices.service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
@@ -40,34 +40,42 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public InvoiceEntity createInvoice(AppUser appUser, CreateInvoiceRequest invoiceRequest) {
     
-        var expenseEntities = new ArrayList<ExpenseEntity>();
         long localIdCounter = 1;
-        var invoiceEntity = new InvoiceEntity(appUser, invoiceRequest.getDueDate(), expenseEntities);
-
+        var invoiceEntity = new InvoiceEntity(appUser == null ? 0 : appUser.getId(), invoiceRequest.getDueDate(), null);
+        
         if (appUser != null)
             invoiceEntity = invoiceRepository.save(invoiceEntity);
         
-        for (var expenseRequest : invoiceRequest.getExpenses()) {
-            expenseEntities.add(ExpenseEntity.builder()
-                    .localId(localIdCounter++)
-                    .invoice(invoiceEntity)
-                    .amount(expenseRequest.getAmount())
-                    .description(expenseRequest.getDescription())
-                    .date(expenseRequest.getDate())
-                    .installment(expenseRequest.getInstallment())
-                    .build());
-        }
+        invoiceEntity.setExpenses(new ArrayList<>());
 
-        if (appUser != null)
-            expenseRepository.saveAll(expenseEntities);
+        for (var expenseRequest : invoiceRequest.getExpenses()) {
+            var expense = ExpenseEntity.builder()
+                .localId(localIdCounter++)
+                .invoiceId(invoiceEntity.getId())
+                .amount(expenseRequest.getAmount())
+                .description(expenseRequest.getDescription())
+                .date(expenseRequest.getDate())
+                .installment(expenseRequest.getInstallment())
+                .build();
+
+            if (appUser != null)
+                expense = expenseRepository.save(expense);
+
+            invoiceEntity.getExpenses().add(expense);
+        }
 
         return invoiceEntity;
     }
 
     @Override
     public List<InvoiceEntity> listInvoices(long appUserId) {
-        // TODO Maybe there's a way to find by user id
-        return invoiceRepository.findByAppUser(appUserService.getUserById(appUserId));
+        var invoices = invoiceRepository.findInvoicesForUserId(appUserId);
+        for (var invoice : invoices) {
+            invoice.setExpenses(
+                expenseRepository.findExpensesByInvoiceId(invoice.getId())
+            );
+        }
+        return invoices;
     }
 
     @Override
@@ -75,25 +83,23 @@ public class InvoiceServiceImpl implements InvoiceService {
     public InvoiceEntity getInvoice(long invoiceId) {
         var invoiceOpt = invoiceRepository.findById(invoiceId);
         
-        invoiceOpt.ifPresent(invoice -> invoice.getExpenses().sort(Comparator.comparing(ExpenseEntity::getLocalId)));
+        invoiceOpt.ifPresent(invoice -> invoice.setExpenses(expenseRepository.findExpensesByInvoiceId(invoiceId)));
 
         return invoiceOpt.orElseThrow();
     }
+
+    
 
     @SuppressWarnings("null")
     @Override
     public ExpenseEntity createExpense(long invoiceId, CreateExpenseRequest expenseRequest) {
         var invoice = getInvoice(invoiceId);
 
-        long nextLocalId = invoice.getExpenses().stream()
-                .sorted(Comparator.comparingLong(ExpenseEntity::getLocalId).reversed())
-                .findFirst()
-                .orElse(ExpenseEntity.builder().localId(0).build()).getLocalId() + 1;
-                
+        long nextLocalId = expenseRepository.findLatestLocalId(invoiceId) + 1;
 
         var expense = ExpenseEntity.builder()
             .localId(nextLocalId)
-            .invoice(invoice)
+            .invoiceId(invoice.getId())
             .amount(expenseRequest.getAmount())
             .description(expenseRequest.getDescription())
             .date(expenseRequest.getDate())
@@ -107,7 +113,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     public InvoiceEntity deleteInvoice(long invoiceId) {
         var invoiceEntity = getInvoice(invoiceId);
 
-        invoiceRepository.delete(invoiceEntity);
+        invoiceRepository.delete(invoiceEntity.getId());
         return invoiceEntity;
     }
 
@@ -118,29 +124,21 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public ExpenseEntity updateExpense(long invoiceId, long expenseId, UpdateExpenseRequest expenseRequest) {
-        var currentExpense = getExpense(invoiceId, expenseId);
+    public ExpenseEntity updateExpense(long invoiceId, long localId, UpdateExpenseRequest expenseRequest) {
+        expenseRepository.update(
+            invoiceId, localId,
+            Optional.ofNullable(expenseRequest.getAmount()),
+            Optional.ofNullable(expenseRequest.getDate()),
+            Optional.ofNullable(expenseRequest.getDescription()),
+            Optional.ofNullable(expenseRequest.getInstallment()));
 
-        if (expenseRequest.getAmount() != null)
-            currentExpense.setAmount(expenseRequest.getAmount());
-
-        if (expenseRequest.getDate() != null)
-            currentExpense.setDate(expenseRequest.getDate());
-
-        if (expenseRequest.getDescription() != null)
-            currentExpense.setDescription(expenseRequest.getDescription());
-
-        if (expenseRequest.getInstallment() != null)
-            currentExpense.setInstallment(expenseRequest.getInstallment());
-
-        return expenseRepository.save(currentExpense);
-
+        return expenseRepository.findByInvoiceIdAndLocalId(invoiceId, localId).get();
     }
 
     @Override
-    public ExpenseEntity deleteExpense(long invoiceId, long expenseId) {
-        var expense = getExpense(invoiceId, expenseId);
-        expenseRepository.delete(expense);
+    public ExpenseEntity deleteExpense(long invoiceId, long localExpenseId) {
+        var expense = getExpense(invoiceId, localExpenseId);
+        expenseRepository.delete(expense.getId());
         return expense;
     }
     

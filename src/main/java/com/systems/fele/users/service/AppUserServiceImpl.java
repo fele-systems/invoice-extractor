@@ -3,6 +3,7 @@ package com.systems.fele.users.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,7 @@ import com.systems.fele.common.util.StringUtils;
 import com.systems.fele.users.dto.UserRegisterRequest;
 import com.systems.fele.users.dto.UserUpdateRequest;
 import com.systems.fele.users.entity.AppUser;
+import com.systems.fele.users.exception.NoSuchUserException;
 import com.systems.fele.users.repository.AppUserRepository;
 import com.systems.fele.users.security.AppUserPrincipal;
 
@@ -33,9 +35,9 @@ public class AppUserServiceImpl implements AppUserService {
     @PostConstruct
     public void init() {
         // create default admin user
-        if (appUserRepository.findByEmail(ADMIN_EMAIL).isEmpty()) {
-            appUserRepository.save(new AppUser(0l, "Admin", "istrator", ADMIN_EMAIL, passwordEncoder.encode("12345678"), true, true));
-        }
+        //if (appUserRepository.findByEmail(ADMIN_EMAIL).isEmpty()) {
+        //    appUserRepository.save(new AppUser(0l, "Admin", "istrator", ADMIN_EMAIL, passwordEncoder.encode("12345678"), true, true));
+        //}
     }
 
     @Override
@@ -75,10 +77,8 @@ public class AppUserServiceImpl implements AppUserService {
 
     @Override
     public boolean isEmailAvailable(String email) {
-        return !appUserRepository.findByEmail(email).isPresent();
+        return appUserRepository.isEmailAvailable(email);
     }
-
-    
 
     @Override
     public AppUser updateUser(long id, UserUpdateRequest userUpdateRequest) {
@@ -91,9 +91,8 @@ public class AppUserServiceImpl implements AppUserService {
             throw new AccessDeniedException("You're not authorized to promote yourself as administrator.");
         }
 
-        // TODO Change this exception to a 404 not found
         var targetUser = appUserRepository.findById(id)
-                .orElseThrow(()->new RuntimeException("The user " + id + " does not exist"));
+                .orElseThrow(()->new NoSuchUserException(String.valueOf(id)));
         
         if (userUpdateRequest.getAdmin() == null) userUpdateRequest.setAdmin(targetUser.isAdmin());
         if (userUpdateRequest.getEmail() == null) userUpdateRequest.setEmail(targetUser.getEmail());
@@ -134,6 +133,4 @@ public class AppUserServiceImpl implements AppUserService {
     public AppUser getUserByEmail(String email) {
         return appUserRepository.findByEmail(email).get();
     }
-
-    
 }

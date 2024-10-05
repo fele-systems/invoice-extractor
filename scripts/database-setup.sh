@@ -9,6 +9,9 @@ if [[ "$1" == "recreate" ]]; then
     sudo -u postgres psql <<-EOF
     DROP DATABASE invoices;
     CREATE DATABASE invoices;
+
+    DROP DATABASE invoices_integration;
+    CREATE DATABASE invoices_integration;
 EOF
     exit 0
 fi
@@ -23,5 +26,8 @@ sudo -u postgres psql <<EOF
 CREATE ROLE invoices LOGIN SUPERUSER PASSWORD 'invoice';
 CREATE DATABASE invoices;
 GRANT ALL PRIVILEGES ON DATABASE invoices TO invoices;
+
+CREATE DATABASE invoices_integration;
+GRANT ALL PRIVILEGES ON DATABASE invoices_integration TO invoices;
 
 EOF

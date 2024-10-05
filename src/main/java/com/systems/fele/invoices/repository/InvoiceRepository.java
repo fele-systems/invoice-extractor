@@ -1,21 +1,18 @@
 package com.systems.fele.invoices.repository;
 
-import java.time.LocalDate;
 import java.util.List;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
 
 import com.systems.fele.invoices.entity.InvoiceEntity;
-import com.systems.fele.users.entity.AppUser;
 
-public interface InvoiceRepository extends JpaRepository<InvoiceEntity, Long> {
+public interface InvoiceRepository {
     
-    List<InvoiceEntity> findByAppUser(AppUser appUser);
+    List<InvoiceEntity> findInvoicesForUserId(long appUserId);
 
-    List<InvoiceEntity> findByAppUserAndDueDateBetween(AppUser appUser, LocalDate from, LocalDate to);
+    InvoiceEntity save(InvoiceEntity invoiceEntity);
 
-    List<InvoiceEntity> findByAppUserAndDueDateGreaterThanEqual(AppUser appUser, LocalDate from);
+    Optional<InvoiceEntity> findById(long invoiceId);
 
-    List<InvoiceEntity> findByAppUserAndDueDateLessThanEqual(AppUser appUser, LocalDate to);
+    void delete(long invoiceId);
 
 }

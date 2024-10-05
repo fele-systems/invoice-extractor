@@ -16,22 +16,30 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.systems.fele.common.controller.WebController;
 import com.systems.fele.extractor.banks.PdfInvoiceResource;
 import com.systems.fele.extractor.service.ExtractorService;
 import com.systems.fele.extractor.service.TryItService;
+import com.systems.fele.invoices.dto.CreateExpenseRequest;
+import com.systems.fele.invoices.dto.CreateInvoiceRequest;
+import com.systems.fele.invoices.service.InvoiceService;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class TryItController {
 
-    TryItService tryItService;
-    ExtractorService extractorService;
+    private final WebController webController;
+    private final TryItService tryItService;
+    private final ExtractorService extractorService;
+    private final InvoiceService invoiceService;
 
     @Autowired
-    public TryItController(TryItService tryItService, ExtractorService extractorService) {
+    public TryItController(TryItService tryItService, ExtractorService extractorService, WebController webController, InvoiceService invoiceService) {
         this.tryItService = tryItService;
         this.extractorService = extractorService;
+        this.webController = webController;
+        this.invoiceService = invoiceService;
     }
 
     private static final String REDIRECT = "redirect:/tryit";
@@ -45,6 +53,7 @@ public class TryItController {
     public String viewTryIt(Model model, HttpSession session) {
         
         model.addAttribute("invoices", tryItService.getShortInvoicesForSession(session.getId()));
+        webController.fillAndGetUserData(model);
 
         return "try-it";
     }
@@ -91,6 +100,31 @@ public class TryItController {
         attributes.addFlashAttribute("extracted", true);
 
         return REDIRECT;
+    }
+
+    @PostMapping("/tryit/save/{id}")
+    public ResponseEntity<String> doSave(@PathVariable Integer id, HttpSession session) {
+        if (id == null) {
+            return ResponseEntity.badRequest().body("No invoice id specified!");
+        }
+
+        int intId = id - 1;
+
+        var sessionInvoices = tryItService.getInvoicesForSession(session.getId());
+
+        if (intId < 0 || intId >= sessionInvoices.size()) {
+            return ResponseEntity.badRequest().body("Invoice number must be > 0 and < " + sessionInvoices.size());
+        }
+
+        var user = webController.getUserData().get();
+        var invoice = sessionInvoices.get(intId);
+        var request = new CreateInvoiceRequest(invoice.getDueDate(), invoice.getExpenses().stream()
+            .map(CreateExpenseRequest::fromEntity)
+            .toList());
+
+        invoiceService.createInvoice(user, request);
+
+        return ResponseEntity.ok("Saved successfully");
     }
 
     @GetMapping("/tryit/download/{id}")
